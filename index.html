@@ -946,6 +946,30 @@
 
     .cal-day-modal-events .event-item { margin-bottom: 6px; }
 
+    .modal-add-form-wrap {
+      margin-bottom: 14px;
+      padding-top: 14px;
+      border-top: 1px solid var(--border);
+    }
+
+    .modal-add-date-label {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      margin-bottom: 12px;
+    }
+
+    .modal-footer-actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    .modal-footer-actions .submit-btn,
+    .modal-footer-actions .cancel-btn {
+      flex: 1;
+      width: auto;
+    }
+
     .form-group { margin-bottom: 14px; }
 
     .form-group label {
@@ -1130,7 +1154,7 @@
         <button class="tab-btn active" data-tab="dashboard">홈</button>
         <button class="tab-btn" data-tab="calendar">달력</button>
         <button class="tab-btn" data-tab="list">리스트</button>
-        <button class="tab-btn" data-tab="add">추가</button>
+        <button class="tab-btn" data-tab="add">일정추가</button>
       </nav>
 
       <section id="panel-dashboard" class="panel active panel-fit">
@@ -1260,7 +1284,60 @@
     <div class="modal">
       <h2 id="cal-day-modal-title"></h2>
       <ul class="cal-day-modal-events" id="cal-day-modal-events"></ul>
-      <button type="button" class="cancel-btn" id="cal-day-modal-close" style="width:100%">닫기</button>
+      <div class="modal-add-form-wrap" id="modal-add-wrap" hidden>
+        <form id="modal-add-form">
+          <p class="modal-add-date-label" id="modal-add-date-label"></p>
+          <input type="hidden" id="modal-add-date">
+          <div class="form-group">
+            <label for="modal-add-title">제목</label>
+            <input type="text" id="modal-add-title" placeholder="예: test" required>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="modal-add-time">시간</label>
+              <input type="time" id="modal-add-time" required>
+            </div>
+            <div class="form-group">
+              <label for="modal-add-category">카테고리</label>
+              <select id="modal-add-category">
+                <option value="school">학교</option>
+                <option value="personal">개인</option>
+                <option value="work">업무</option>
+                <option value="other">기타</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="modal-add-repeat">반복</label>
+              <select id="modal-add-repeat">
+                <option value="none">없음</option>
+                <option value="weekly">매주 반복</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="modal-add-memo">메모</label>
+            <textarea id="modal-add-memo" rows="2" placeholder="추가 메모"></textarea>
+          </div>
+          <div class="checkbox-row">
+            <input type="checkbox" id="modal-add-important">
+            <label for="modal-add-important">중요 일정</label>
+          </div>
+          <div class="checkbox-row">
+            <input type="checkbox" id="modal-add-dday">
+            <label for="modal-add-dday">D-day로 표시</label>
+          </div>
+          <div class="form-actions">
+            <button type="button" class="cancel-btn" id="modal-add-cancel">취소</button>
+            <button type="submit" class="submit-btn">저장</button>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer-actions" id="cal-day-modal-footer">
+        <button type="button" class="submit-btn" id="cal-day-modal-add-btn">추가</button>
+        <button type="button" class="cancel-btn" id="cal-day-modal-close">닫기</button>
+      </div>
     </div>
   </div>
 
@@ -2089,12 +2166,47 @@
           getCategoryWeekOccurrences(eventModalContext.category)
         );
       }
+      if (!$("modal-add-wrap").hidden) {
+        $("cal-day-modal-events").hidden = true;
+      }
+    }
+
+    function hideModalAddForm() {
+      $("modal-add-wrap").hidden = true;
+      $("cal-day-modal-events").hidden = false;
+      $("modal-add-form").reset();
+      $("modal-add-time").value = "09:00";
+    }
+
+    function showModalAddForm(dateStr) {
+      $("modal-add-date").value = dateStr;
+      $("modal-add-date-label").textContent = formatDisplayDate(dateStr);
+      $("modal-add-time").value = "09:00";
+      $("cal-day-modal-events").hidden = true;
+      $("modal-add-wrap").hidden = false;
+      $("cal-day-modal-add-btn").hidden = true;
+      $("modal-add-title").focus();
+    }
+
+    function updateModalAddUi() {
+      hideModalAddForm();
+      $("cal-day-modal-add-btn").hidden = eventModalContext?.type !== "day";
+    }
+
+    function pushNewEvent(data) {
+      events.push(normalizeEvent({
+        id: crypto.randomUUID(),
+        doneDates: [],
+        ...data
+      }));
+      saveEvents();
     }
 
     function openCalDayModal(dateStr) {
       selectedDate = dateStr;
       eventModalContext = { type: "day", dateStr };
       refreshEventModal();
+      updateModalAddUi();
       $("cal-day-modal").classList.add("open");
       renderCalendar();
     }
@@ -2102,12 +2214,14 @@
     function openCategoryWeekModal(category) {
       eventModalContext = { type: "category", category };
       refreshEventModal();
+      updateModalAddUi();
       $("cal-day-modal").classList.add("open");
     }
 
     function closeCalDayModal() {
       $("cal-day-modal").classList.remove("open");
       eventModalContext = null;
+      hideModalAddForm();
     }
 
     function appendCalDayCell(grid, cellYear, cellMonth, cellDay, todayStr) {
@@ -2248,8 +2362,7 @@
 
     $("add-form").addEventListener("submit", e => {
       e.preventDefault();
-      events.push(normalizeEvent({
-        id: crypto.randomUUID(),
+      pushNewEvent({
         title: $("title").value.trim(),
         date: $("date").value,
         time: $("time").value,
@@ -2257,16 +2370,47 @@
         category: $("category").value,
         repeat: $("repeat").value,
         important: $("important").checked,
-        dday: $("dday").checked,
-        doneDates: []
-      }));
-      saveEvents();
+        dday: $("dday").checked
+      });
       e.target.reset();
       $("date").value = formatDate(new Date());
       $("time").value = "09:00";
       renderAll();
       showToast("일정이 저장되었습니다");
       switchTab("dashboard");
+    });
+
+    $("modal-add-form").addEventListener("submit", e => {
+      e.preventDefault();
+      pushNewEvent({
+        title: $("modal-add-title").value.trim(),
+        date: $("modal-add-date").value,
+        time: $("modal-add-time").value,
+        memo: $("modal-add-memo").value.trim(),
+        category: $("modal-add-category").value,
+        repeat: $("modal-add-repeat").value,
+        important: $("modal-add-important").checked,
+        dday: $("modal-add-dday").checked
+      });
+      hideModalAddForm();
+      renderAll();
+      showToast("일정이 저장되었습니다");
+      if (eventModalContext?.type === "day") {
+        $("cal-day-modal-add-btn").hidden = false;
+      }
+    });
+
+    $("cal-day-modal-add-btn").addEventListener("click", () => {
+      if (eventModalContext?.type === "day") {
+        showModalAddForm(eventModalContext.dateStr);
+      }
+    });
+
+    $("modal-add-cancel").addEventListener("click", () => {
+      hideModalAddForm();
+      if (eventModalContext?.type === "day") {
+        $("cal-day-modal-add-btn").hidden = false;
+      }
     });
 
     $("edit-form").addEventListener("submit", e => {
