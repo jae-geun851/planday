@@ -65,18 +65,33 @@
       flex-shrink: 0;
       background: var(--surface);
       border-right: 1px solid var(--border);
-      padding: 20px 16px;
+      padding: 14px 14px 12px;
       display: flex;
       flex-direction: column;
-      gap: 20px;
+      gap: 8px;
       position: sticky;
       top: 0;
       height: 100vh;
-      overflow-y: auto;
+      overflow: hidden;
+    }
+
+    .sidebar-body {
+      flex: 1;
+      min-height: 0;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .sidebar-auth-block {
+      flex-shrink: 0;
+      padding-top: 8px;
+      border-top: 1px solid var(--border);
     }
 
     .sidebar-brand h1 {
-      font-size: 1.4rem;
+      font-size: 1.25rem;
       font-weight: 800;
       color: var(--primary);
     }
@@ -94,13 +109,17 @@
       gap: 8px;
     }
 
+    .sidebar-block {
+      flex-shrink: 0;
+    }
+
     .theme-btn {
       flex-shrink: 0;
       border: 1px solid var(--border);
       background: var(--bg);
       border-radius: 8px;
-      padding: 6px 10px;
-      font-size: 0.85rem;
+      padding: 5px 8px;
+      font-size: 0.8rem;
       cursor: pointer;
       color: var(--text);
     }
@@ -108,20 +127,20 @@
     .theme-btn:hover { border-color: var(--primary); }
 
     .sidebar-block h3 {
-      font-size: 0.8rem;
+      font-size: 0.72rem;
       font-weight: 700;
       color: var(--text-muted);
       text-transform: uppercase;
       letter-spacing: 0.04em;
-      margin-bottom: 10px;
+      margin-bottom: 6px;
     }
 
     .search-box {
       width: 100%;
-      padding: 10px 12px;
+      padding: 8px 10px;
       border: 1px solid var(--border);
-      border-radius: 10px;
-      font-size: 0.9rem;
+      border-radius: 8px;
+      font-size: 0.85rem;
       font-family: inherit;
       background: var(--surface);
       color: var(--text);
@@ -133,13 +152,19 @@
       box-shadow: 0 0 0 3px rgba(79,110,247,0.15);
     }
 
-    .search-results { display: flex; flex-direction: column; gap: 6px; }
+    .search-results {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      max-height: 64px;
+      overflow-y: auto;
+    }
 
     .search-item {
-      padding: 8px 10px;
+      padding: 6px 8px;
       background: var(--bg);
-      border-radius: 8px;
-      font-size: 0.85rem;
+      border-radius: 6px;
+      font-size: 0.8rem;
       cursor: pointer;
       border-left: 3px solid var(--primary);
     }
@@ -151,12 +176,12 @@
     .progress-header {
       display: flex;
       justify-content: space-between;
-      font-size: 0.85rem;
-      margin-bottom: 8px;
+      font-size: 0.8rem;
+      margin-bottom: 6px;
     }
 
     .progress-bar {
-      height: 10px;
+      height: 8px;
       background: var(--bg);
       border-radius: 999px;
       overflow: hidden;
@@ -172,15 +197,15 @@
     .dday-list {
       display: grid;
       grid-template-rows: repeat(3, 1fr);
-      gap: 6px;
+      gap: 5px;
       min-height: 0;
     }
 
     .dday-item {
-      padding: 10px 12px;
+      padding: 7px 10px;
       background: var(--bg);
-      border-radius: 10px;
-      border-left: 4px solid var(--danger);
+      border-radius: 8px;
+      border-left: 3px solid var(--danger);
       display: flex;
       flex-direction: column;
       justify-content: center;
@@ -193,30 +218,34 @@
     }
 
     .sidebar-block-dday .dday-list {
-      min-height: 168px;
+      min-height: 150px;
+    }
+
+    .sidebar-block-dday .pagination {
+      padding-top: 4px;
     }
 
     .dday-item .days {
-      font-size: 1.1rem;
+      font-size: 0.95rem;
       font-weight: 800;
       color: var(--danger);
     }
 
-    .dday-item .title { font-size: 0.9rem; font-weight: 600; margin-top: 2px; }
-    .dday-item .date { font-size: 0.75rem; color: var(--text-muted); }
+    .dday-item .title { font-size: 0.82rem; font-weight: 600; margin-top: 1px; }
+    .dday-item .date { font-size: 0.7rem; color: var(--text-muted); }
 
-    .legend { display: flex; flex-direction: column; gap: 6px; }
+    .legend { display: flex; flex-direction: column; gap: 4px; }
 
     .legend-item {
       display: flex;
       align-items: center;
-      gap: 8px;
-      font-size: 0.85rem;
+      gap: 6px;
+      font-size: 0.8rem;
     }
 
     .legend-dot {
-      width: 10px;
-      height: 10px;
+      width: 8px;
+      height: 8px;
       border-radius: 50%;
       flex-shrink: 0;
     }
@@ -1088,7 +1117,11 @@
         position: static;
         border-right: none;
         border-bottom: 1px solid var(--border);
+        overflow: visible;
       }
+
+      .sidebar-body { overflow: visible; }
+      .sidebar-auth-block { border-top: none; padding-top: 0; }
       .main { overflow: visible; }
       .dash-top { grid-template-columns: 1fr; }
       .dash-bottom { grid-template-columns: 1fr; }
@@ -1100,52 +1133,519 @@
       .form-row { grid-template-columns: 1fr; }
       .stat-grid { grid-template-columns: 1fr; }
     }
+
+    .auth-screen {
+      position: fixed;
+      inset: 0;
+      z-index: 500;
+      background: var(--bg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+
+    .auth-screen[hidden] { display: none !important; }
+
+    .auth-card {
+      width: 100%;
+      max-width: 380px;
+      background: var(--surface);
+      border-radius: 16px;
+      padding: 28px 24px;
+      box-shadow: var(--shadow);
+    }
+
+    .auth-card h1 {
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: var(--primary);
+      margin-bottom: 4px;
+    }
+
+    .auth-card > p {
+      color: var(--text-muted);
+      font-size: 0.88rem;
+      margin-bottom: 20px;
+    }
+
+    .auth-card .form-group { margin-bottom: 12px; }
+
+    .auth-error {
+      color: var(--danger);
+      font-size: 0.82rem;
+      margin-top: 10px;
+      min-height: 1.2em;
+    }
+
+    .auth-go-signup {
+      width: 100%;
+      margin-top: 12px;
+      padding: 10px;
+      border: 1px solid var(--border);
+      border-radius: 9px;
+      background: var(--surface);
+      font-size: 0.88rem;
+      font-weight: 600;
+      cursor: pointer;
+      color: var(--text);
+      font-family: inherit;
+    }
+
+    .auth-go-signup:hover {
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+
+    .auth-back-text {
+      display: block;
+      width: 100%;
+      margin-top: 16px;
+      padding: 0;
+      border: none;
+      background: none;
+      text-align: center;
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-family: inherit;
+      text-decoration: underline;
+    }
+
+    .auth-back-text:hover { color: var(--primary); }
+
+    .user-email {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      word-break: break-all;
+      margin-bottom: 6px;
+    }
+
+    #logout-btn { width: 100%; padding: 8px; font-size: 0.82rem; }
+
+    .chat-widget {
+      position: fixed;
+      right: 20px;
+      bottom: 20px;
+      z-index: 260;
+      font-family: inherit;
+    }
+
+    .chat-widget[hidden] { display: none !important; }
+
+    .chat-fab {
+      width: 52px;
+      height: 52px;
+      border: none;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--primary), #6b8cff);
+      color: #fff;
+      font-size: 1.35rem;
+      cursor: pointer;
+      box-shadow: 0 4px 16px rgba(79, 110, 247, 0.45);
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .chat-fab:hover {
+      transform: scale(1.05);
+      box-shadow: 0 6px 20px rgba(79, 110, 247, 0.55);
+    }
+
+    .chat-panel {
+      position: absolute;
+      right: 0;
+      bottom: 64px;
+      width: 340px;
+      max-width: calc(100vw - 32px);
+      height: 460px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      transform: scale(0.92) translateY(12px);
+      opacity: 0;
+      pointer-events: none;
+      transition: transform 0.22s, opacity 0.22s;
+      transform-origin: bottom right;
+    }
+
+    .chat-panel.open {
+      transform: scale(1) translateY(0);
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .chat-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      padding: 12px 14px;
+      background: linear-gradient(135deg, var(--primary), #6b8cff);
+      color: #fff;
+      flex-shrink: 0;
+    }
+
+    .chat-header-actions {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      flex-shrink: 0;
+    }
+
+    .chat-icon-btn {
+      border: none;
+      background: rgba(255, 255, 255, 0.2);
+      color: #fff;
+      width: 28px;
+      height: 28px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      line-height: 1;
+    }
+
+    .chat-icon-btn:hover { background: rgba(255, 255, 255, 0.35); }
+    .chat-icon-btn.active { background: rgba(255, 255, 255, 0.45); }
+
+    .chat-header-info h2 {
+      font-size: 0.95rem;
+      font-weight: 700;
+      margin-bottom: 2px;
+    }
+
+    .chat-header-info p {
+      font-size: 0.72rem;
+      opacity: 0.9;
+    }
+
+    .chat-close {
+      border: none;
+      background: rgba(255, 255, 255, 0.2);
+      color: #fff;
+      width: 28px;
+      height: 28px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 1rem;
+      line-height: 1;
+    }
+
+    .chat-close:hover { background: rgba(255, 255, 255, 0.35); }
+
+    .chat-tabs {
+      display: flex;
+      gap: 4px;
+      padding: 8px 10px 0;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+
+    .chat-tab {
+      flex: 1;
+      border: none;
+      background: transparent;
+      padding: 8px 6px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      font-family: inherit;
+    }
+
+    .chat-tab.active {
+      color: var(--primary);
+      border-bottom-color: var(--primary);
+    }
+
+    .chat-view {
+      display: none;
+      flex: 1;
+      min-height: 0;
+      flex-direction: column;
+    }
+
+    .chat-view.active { display: flex; }
+
+    .chat-session-list {
+      flex: 1;
+      min-height: 0;
+      overflow-y: auto;
+      padding: 10px;
+      background: var(--bg);
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .chat-session-item {
+      padding: 10px 12px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      cursor: pointer;
+      text-align: left;
+      font-family: inherit;
+      color: var(--text);
+    }
+
+    .chat-session-item:hover,
+    .chat-session-item.active {
+      border-color: var(--primary);
+      background: var(--today);
+    }
+
+    .chat-session-item .session-title {
+      font-size: 0.84rem;
+      font-weight: 600;
+      margin-bottom: 3px;
+    }
+
+    .chat-session-item .session-meta {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+    }
+
+    .chat-session-empty {
+      padding: 24px 12px;
+      text-align: center;
+      font-size: 0.82rem;
+      color: var(--text-muted);
+    }
+
+    .chat-system-box {
+      flex: 1;
+      min-height: 0;
+      overflow-y: auto;
+      padding: 14px;
+      background: var(--bg);
+      font-size: 0.8rem;
+      line-height: 1.55;
+      white-space: pre-wrap;
+      word-break: break-word;
+      color: var(--text);
+    }
+
+    .chat-system-label {
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      margin-bottom: 8px;
+    }
+
+    .chat-messages {
+      flex: 1;
+      min-height: 0;
+      overflow-y: auto;
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      background: var(--bg);
+    }
+
+    .chat-msg {
+      max-width: 88%;
+      padding: 10px 12px;
+      border-radius: 12px;
+      font-size: 0.84rem;
+      line-height: 1.45;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .chat-msg.bot {
+      align-self: flex-start;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-bottom-left-radius: 4px;
+    }
+
+    .chat-msg.user {
+      align-self: flex-end;
+      background: var(--primary);
+      color: #fff;
+      border-bottom-right-radius: 4px;
+    }
+
+    .chat-msg.typing {
+      color: var(--text-muted);
+      font-style: italic;
+    }
+
+    .chat-suggestions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      padding: 0 14px 10px;
+      background: var(--bg);
+      flex-shrink: 0;
+    }
+
+    .chat-chip {
+      border: 1px solid var(--border);
+      background: var(--surface);
+      border-radius: 999px;
+      padding: 5px 10px;
+      font-size: 0.72rem;
+      font-weight: 600;
+      color: var(--text);
+      cursor: pointer;
+      font-family: inherit;
+    }
+
+    .chat-chip:hover {
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+
+    .chat-input-row {
+      display: flex;
+      gap: 8px;
+      padding: 12px 14px;
+      border-top: 1px solid var(--border);
+      background: var(--surface);
+      flex-shrink: 0;
+    }
+
+    .chat-input {
+      flex: 1;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 9px 12px;
+      font-size: 0.85rem;
+      font-family: inherit;
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    .chat-input:focus {
+      outline: none;
+      border-color: var(--primary);
+    }
+
+    .chat-send {
+      border: none;
+      background: var(--primary);
+      color: #fff;
+      border-radius: 10px;
+      padding: 0 14px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: inherit;
+    }
+
+    .chat-send:hover { background: var(--primary-hover); }
+
+    @media (max-width: 480px) {
+      .chat-widget { right: 12px; bottom: 12px; }
+      .chat-panel { height: min(460px, calc(100vh - 100px)); }
+    }
   </style>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.8/dist/umd/supabase.min.js"></script>
 </head>
 <body>
-  <div class="app-shell">
+  <div class="auth-screen" id="auth-screen">
+    <div class="auth-card" id="auth-login-page">
+      <h1>PlanDay</h1>
+      <p id="auth-subtitle">로그인하고 일정을 클라우드에 저장하세요</p>
+      <form id="login-form">
+        <div class="form-group">
+          <label for="login-email">이메일</label>
+          <input type="email" id="login-email" required placeholder="you@email.com">
+        </div>
+        <div class="form-group">
+          <label for="login-password">비밀번호</label>
+          <input type="password" id="login-password" required minlength="6" placeholder="6자 이상">
+        </div>
+        <button type="submit" class="submit-btn">로그인</button>
+        <button type="button" class="auth-go-signup" id="go-signup">회원가입</button>
+        <p class="auth-error" id="login-error"></p>
+      </form>
+    </div>
+
+    <div class="auth-card" id="auth-signup-page" hidden>
+      <h1>PlanDay</h1>
+      <p>새 계정을 만들어 일정을 저장하세요</p>
+      <form id="signup-form">
+        <div class="form-group">
+          <label for="signup-email">이메일</label>
+          <input type="email" id="signup-email" required placeholder="you@email.com">
+        </div>
+        <div class="form-group">
+          <label for="signup-password">비밀번호</label>
+          <input type="password" id="signup-password" required minlength="6" placeholder="6자 이상">
+        </div>
+        <div class="form-group">
+          <label for="signup-password2">비밀번호 확인</label>
+          <input type="password" id="signup-password2" required minlength="6" placeholder="비밀번호 다시 입력">
+        </div>
+        <button type="submit" class="submit-btn">회원가입</button>
+        <button type="button" class="auth-back-text" id="go-login">로그인 페이지로 돌아가기</button>
+        <p class="auth-error" id="signup-error"></p>
+      </form>
+    </div>
+  </div>
+
+  <div class="app-shell" id="app-shell" hidden>
     <aside class="sidebar">
-      <div class="sidebar-top">
-        <div class="sidebar-brand">
-          <h1>PlanDay</h1>
-          <p>스마트 일정 관리</p>
-        </div>
-        <button type="button" class="theme-btn" id="theme-btn" title="테마 변경">☀️</button>
-      </div>
-
-      <div class="sidebar-block">
-        <h3>검색</h3>
-        <input type="search" class="search-box" id="search-input" placeholder="일정 검색...">
-        <div class="search-results" id="search-results"></div>
-      </div>
-
-      <div class="sidebar-block">
-        <h3>오늘 완료율</h3>
-        <div class="progress-wrap">
-          <div class="progress-header">
-            <span id="progress-label">0 / 0</span>
-            <span id="progress-pct">0%</span>
+      <div class="sidebar-body">
+        <div class="sidebar-top">
+          <div class="sidebar-brand">
+            <h1>PlanDay</h1>
+            <p>스마트 일정 관리</p>
           </div>
-          <div class="progress-bar">
-            <div class="progress-fill" id="progress-fill" style="width:0%"></div>
+          <button type="button" class="theme-btn" id="theme-btn" title="테마 변경">☀️</button>
+        </div>
+
+        <div class="sidebar-block">
+          <h3>검색</h3>
+          <input type="search" class="search-box" id="search-input" placeholder="일정 검색...">
+          <div class="search-results" id="search-results"></div>
+        </div>
+
+        <div class="sidebar-block">
+          <h3>오늘 완료율</h3>
+          <div class="progress-wrap">
+            <div class="progress-header">
+              <span id="progress-label">0 / 0</span>
+              <span id="progress-pct">0%</span>
+            </div>
+            <div class="progress-bar">
+              <div class="progress-fill" id="progress-fill" style="width:0%"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="sidebar-block sidebar-block-dday">
+          <h3>D-day</h3>
+          <div class="dday-list" id="dday-list"></div>
+          <div class="pagination" id="dday-pagination"></div>
+        </div>
+
+        <div class="sidebar-block">
+          <h3>카테고리</h3>
+          <div class="legend">
+            <div class="legend-item"><span class="legend-dot" style="background:var(--cat-school)"></span>학교</div>
+            <div class="legend-item"><span class="legend-dot" style="background:var(--cat-personal)"></span>개인</div>
+            <div class="legend-item"><span class="legend-dot" style="background:var(--cat-work)"></span>업무</div>
+            <div class="legend-item"><span class="legend-dot" style="background:var(--cat-other)"></span>기타</div>
           </div>
         </div>
       </div>
 
-      <div class="sidebar-block sidebar-block-dday">
-        <h3>D-day</h3>
-        <div class="dday-list" id="dday-list"></div>
-        <div class="pagination" id="dday-pagination"></div>
-      </div>
-
-      <div class="sidebar-block">
-        <h3>카테고리</h3>
-        <div class="legend">
-          <div class="legend-item"><span class="legend-dot" style="background:var(--cat-school)"></span>학교</div>
-          <div class="legend-item"><span class="legend-dot" style="background:var(--cat-personal)"></span>개인</div>
-          <div class="legend-item"><span class="legend-dot" style="background:var(--cat-work)"></span>업무</div>
-          <div class="legend-item"><span class="legend-dot" style="background:var(--cat-other)"></span>기타</div>
-        </div>
+      <div class="sidebar-block sidebar-auth-block" id="sidebar-auth" hidden>
+        <h3>계정</h3>
+        <p class="user-email" id="user-email"></p>
+        <button type="button" class="quick-btn" id="logout-btn">로그아웃</button>
       </div>
     </aside>
 
@@ -1400,7 +1900,47 @@
 
   <div class="toast" id="toast"></div>
 
+  <div class="chat-widget" id="chat-widget" hidden>
+    <div class="chat-panel" id="chat-panel">
+      <div class="chat-header">
+        <div class="chat-header-info">
+          <h2>PlanDay AI</h2>
+          <p id="chat-session-label">일정 조회 · 추가 도우미</p>
+        </div>
+        <div class="chat-header-actions">
+          <button type="button" class="chat-icon-btn" id="chat-new-btn" title="새 대화">＋</button>
+          <button type="button" class="chat-close" id="chat-close" aria-label="챗봇 닫기">×</button>
+        </div>
+      </div>
+      <div class="chat-tabs">
+        <button type="button" class="chat-tab active" data-chat-tab="messages">대화</button>
+        <button type="button" class="chat-tab" data-chat-tab="history">기록</button>
+        <button type="button" class="chat-tab" data-chat-tab="system">시스템</button>
+      </div>
+      <div class="chat-view active" id="chat-view-messages">
+        <div class="chat-messages" id="chat-messages"></div>
+        <div class="chat-suggestions" id="chat-suggestions"></div>
+        <form class="chat-input-row" id="chat-form">
+          <input type="text" class="chat-input" id="chat-input" placeholder="메시지를 입력하세요..." autocomplete="off">
+          <button type="submit" class="chat-send">전송</button>
+        </form>
+      </div>
+      <div class="chat-view" id="chat-view-history">
+        <div class="chat-session-list" id="chat-session-list"></div>
+      </div>
+      <div class="chat-view" id="chat-view-system">
+        <div class="chat-system-box" id="chat-system-box"></div>
+      </div>
+    </div>
+    <button type="button" class="chat-fab" id="chat-fab" aria-label="챗봇 열기">💬</button>
+  </div>
+
   <script>
+    // Supabase 설정 — Project Settings → API에서 복사
+    const SUPABASE_URL = 'https://gjltxsghroodhethquzr.supabase.co';
+    const SUPABASE_ANON_KEY = 'sb_publishable_BkioQUxZKUYHRqFXmWwHgQ_SLiaVKW0';
+    const DEMO_ACCOUNT_EMAIL = 'demo@planday.app';
+
     const STORAGE_KEY = "planDayEvents";
     const SEED_KEY = "planDaySeeded_v7";
     const ORDER_KEY_PREFIX = "planDayOrder_";
@@ -1429,7 +1969,9 @@
 
     const CATEGORY_LABELS = { school: "학교", personal: "개인", work: "업무", other: "기타" };
 
-    let events = loadEvents();
+    let events = [];
+    let supabase = null;
+    let currentUser = null;
     let viewYear = new Date().getFullYear();
     let viewMonth = new Date().getMonth();
     let selectedDate = formatDate(new Date());
@@ -1453,15 +1995,225 @@
       };
     }
 
-    function loadEvents() {
+    function isSupabaseConfigured() {
+      return SUPABASE_URL.trim() !== "" && SUPABASE_ANON_KEY.trim() !== "";
+    }
+
+    function loadEventsLocal() {
       try {
         const data = localStorage.getItem(STORAGE_KEY);
         return data ? JSON.parse(data).map(normalizeEvent) : [];
       } catch { return []; }
     }
 
-    function saveEvents() {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(events));
+    function rowToEvent(row) {
+      return normalizeEvent({
+        id: row.id,
+        title: row.title,
+        date: row.date,
+        time: row.time,
+        memo: row.memo,
+        category: row.category,
+        important: row.important,
+        dday: row.dday,
+        repeat: row.repeat_type ?? row.repeat ?? "none",
+        doneDates: row.done_dates || []
+      });
+    }
+
+    async function loadEventsFromSupabase() {
+      if (!supabase || !currentUser) return [];
+      const { data, error } = await supabase
+        .from("events")
+        .select("*")
+        .order("date")
+        .order("time");
+      if (error) {
+        console.error(error);
+        const msg = error.message?.includes("does not exist") || error.code === "42P01"
+          ? "events 테이블이 없습니다. Supabase SQL Editor에서 supabase-setup.sql을 실행하세요."
+          : `일정 불러오기 실패: ${error.message}`;
+        showToast(msg);
+        return [];
+      }
+      return (data || []).map(rowToEvent);
+    }
+
+    async function saveEvents() {
+      if (!isSupabaseConfigured() || !currentUser || !supabase) {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(events));
+        return;
+      }
+
+      const userId = currentUser.id;
+      const rows = events.map(e => ({
+        id: e.id,
+        user_id: userId,
+        title: e.title,
+        date: e.date,
+        time: e.time,
+        memo: e.memo,
+        category: e.category,
+        important: e.important,
+        dday: e.dday,
+        repeat_type: e.repeat,
+        done_dates: e.doneDates
+      }));
+
+      const { error: upsertError } = await supabase.from("events").upsert(rows);
+      if (upsertError) {
+        console.error(upsertError);
+        showToast(`저장 실패: ${upsertError.message}`);
+        return false;
+      }
+
+      const { data: existing, error: fetchError } = await supabase
+        .from("events")
+        .select("id")
+        .eq("user_id", userId);
+      if (!fetchError && existing) {
+        const currentIds = new Set(events.map(e => e.id));
+        const toDelete = existing.filter(r => !currentIds.has(r.id)).map(r => r.id);
+        if (toDelete.length) {
+          await supabase.from("events").delete().in("id", toDelete);
+        }
+      }
+      return true;
+    }
+
+    async function migrateLocalEventsIfAny() {
+      const local = loadEventsLocal();
+      if (!local.length) return;
+      events = local;
+      await saveEvents();
+      localStorage.removeItem(STORAGE_KEY);
+      showToast("기존 일정을 클라우드로 옮겼습니다");
+    }
+
+    function isDemoAccount(user) {
+      return user?.email?.toLowerCase() === DEMO_ACCOUNT_EMAIL.toLowerCase();
+    }
+
+    function showAuthLoginPage() {
+      $("auth-login-page").hidden = false;
+      $("auth-signup-page").hidden = true;
+    }
+
+    function showAuthSignupPage() {
+      $("auth-login-page").hidden = true;
+      $("auth-signup-page").hidden = false;
+      $("signup-error").textContent = "";
+    }
+
+    function showAuthScreen() {
+      showAuthLoginPage();
+      $("auth-screen").hidden = false;
+      $("app-shell").hidden = true;
+      $("login-error").textContent = "";
+      setChatWidgetVisible(false);
+      closeChatPanel();
+    }
+
+    function hideAuthScreen() {
+      $("auth-screen").hidden = true;
+      $("app-shell").hidden = false;
+      setChatWidgetVisible(true);
+    }
+
+    function updateUserUi() {
+      if (currentUser && isSupabaseConfigured()) {
+        $("sidebar-auth").hidden = false;
+        $("user-email").textContent = currentUser.email || "로그인됨";
+      } else {
+        $("sidebar-auth").hidden = true;
+      }
+    }
+
+    async function seedCloudSampleIfEmpty() {
+      if (!currentUser || !isDemoAccount(currentUser)) return;
+      if (events.length > 0) return;
+      const key = `planDayCloudSeeded_${currentUser.id}`;
+      if (localStorage.getItem(key)) return;
+      events = createSampleEvents();
+      const ok = await saveEvents();
+      if (ok) {
+        localStorage.setItem(key, "1");
+        showToast("데모 일정을 불러왔습니다");
+      }
+    }
+
+    async function onLogin(user) {
+      currentUser = user;
+      hideAuthScreen();
+      updateUserUi();
+      events = await loadEventsFromSupabase();
+      if (events.length === 0 && isDemoAccount(user)) {
+        await seedCloudSampleIfEmpty();
+      }
+      await initChatForUser();
+      renderAll();
+    }
+
+    async function onLogout() {
+      if (supabase) await supabase.auth.signOut();
+      currentUser = null;
+      events = [];
+      resetChatForUser();
+      showAuthScreen();
+    }
+
+    async function initSupabase() {
+      try {
+        if (!window.supabase) {
+          throw new Error("Supabase SDK 로드 실패. 인터넷 연결을 확인하세요.");
+        }
+        supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        const { data: { session }, error } = await supabase.auth.getSession();
+        if (error) throw error;
+        if (session?.user) await onLogin(session.user);
+        else {
+          $("auth-subtitle").textContent = "로그인하고 일정을 클라우드에 저장하세요";
+          showAuthScreen();
+        }
+
+        supabase.auth.onAuthStateChange(async (_event, session) => {
+          if (session?.user) {
+            if (!currentUser || currentUser.id !== session.user.id) {
+              await onLogin(session.user);
+            }
+          } else if (currentUser) {
+            currentUser = null;
+            events = [];
+            showAuthScreen();
+          }
+        });
+      } catch (err) {
+        console.error(err);
+        $("login-error").style.color = "var(--danger)";
+        $("login-error").textContent = err.message || "Supabase 연결 실패";
+        showAuthScreen();
+      }
+    }
+
+    async function initApp() {
+      initTheme();
+      $("date").value = formatDate(new Date());
+      $("time").value = "09:00";
+
+      if (isSupabaseConfigured()) {
+        $("app-shell").hidden = true;
+        $("auth-screen").hidden = false;
+        $("auth-subtitle").textContent = "Supabase 연결 중...";
+        await initSupabase();
+        return;
+      }
+
+      $("auth-screen").hidden = true;
+      $("app-shell").hidden = false;
+      setChatWidgetVisible(true);
+      events = loadEventsLocal();
+      seedSampleData();
+      renderAll();
     }
 
     function formatDate(date) {
@@ -1658,17 +2410,17 @@
       const idx = event.doneDates.indexOf(dateStr);
       if (idx >= 0) event.doneDates.splice(idx, 1);
       else event.doneDates.push(dateStr);
-      saveEvents();
-      renderAll();
+      saveEvents().then(() => renderAll());
     }
 
     function deleteEvent(id) {
       if (!confirm("이 일정을 삭제할까요?")) return;
       events = events.filter(e => e.id !== id);
       listSelectedIds.delete(id);
-      saveEvents();
-      renderAll();
-      showToast("일정이 삭제되었습니다");
+      saveEvents().then(() => {
+        renderAll();
+        showToast("일정이 삭제되었습니다");
+      });
     }
 
     function openEdit(eventId) {
@@ -1814,9 +2566,10 @@
       if (!confirm(`선택한 ${listSelectedIds.size}개 일정을 삭제할까요?`)) return;
       events = events.filter(e => !listSelectedIds.has(e.id));
       exitListDeleteMode(false);
-      saveEvents();
-      renderAll();
-      showToast("선택한 일정이 삭제되었습니다");
+      saveEvents().then(() => {
+        renderAll();
+        showToast("선택한 일정이 삭제되었습니다");
+      });
     }
 
     function renderPagination(container, items, page, pageSize, onChange) {
@@ -2199,7 +2952,7 @@
         doneDates: [],
         ...data
       }));
-      saveEvents();
+      return saveEvents();
     }
 
     function openCalDayModal(dateStr) {
@@ -2342,8 +3095,511 @@
     function seedSampleData() {
       if (localStorage.getItem(SEED_KEY)) return;
       events = createSampleEvents();
-      saveEvents();
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(events));
       localStorage.setItem(SEED_KEY, "1");
+    }
+
+    const CHAT_SUGGESTIONS = ["오늘 일정", "내일 일정", "D-day 알려줘", "도움말"];
+    const CHAT_SYSTEM_PROMPT =
+      "당신은 PlanDay 일정 관리 앱의 AI 도우미입니다.\n" +
+      "사용자의 일정 조회, D-day 확인, 일정 추가를 친절하게 도와줍니다.";
+
+    let chatOpen = false;
+    let chatInitialized = false;
+    let chatSessions = [];
+    let currentSessionId = null;
+    let currentSessionTitle = "";
+    let currentMessages = [];
+    let currentSystemMessage = "";
+    let chatActiveTab = "messages";
+
+    function getDefaultSystemMessage() {
+      return CHAT_SYSTEM_PROMPT + "\n\n--- 디버그 로그 ---";
+    }
+
+    function formatSessionTitle(dateInput) {
+      const d = dateInput instanceof Date ? dateInput : new Date(dateInput);
+      const y = d.getFullYear();
+      const m = String(d.getMonth() + 1).padStart(2, "0");
+      const day = String(d.getDate()).padStart(2, "0");
+      const h = String(d.getHours()).padStart(2, "0");
+      const min = String(d.getMinutes()).padStart(2, "0");
+      return `${y}-${m}-${day} ${h}:${min} 대화`;
+    }
+
+    function formatSessionMeta(session) {
+      const count = Array.isArray(session.messages) ? session.messages.length : 0;
+      const updated = new Date(session.updated_at || session.created_at);
+      const label = `${updated.getMonth() + 1}/${updated.getDate()} ${String(updated.getHours()).padStart(2, "0")}:${String(updated.getMinutes()).padStart(2, "0")}`;
+      return `${count}개 메시지 · ${label}`;
+    }
+
+    function appendSystemLog(line) {
+      if (!currentSystemMessage.includes("--- 디버그 로그 ---")) {
+        currentSystemMessage = getDefaultSystemMessage();
+      }
+      currentSystemMessage += `\n[${new Date().toISOString()}] ${line}`;
+    }
+
+    function setChatWidgetVisible(visible) {
+      $("chat-widget").hidden = !visible;
+    }
+
+    function switchChatTab(tab) {
+      chatActiveTab = tab;
+      document.querySelectorAll(".chat-tab").forEach(btn => {
+        btn.classList.toggle("active", btn.dataset.chatTab === tab);
+      });
+      $("chat-view-messages").classList.toggle("active", tab === "messages");
+      $("chat-view-history").classList.toggle("active", tab === "history");
+      $("chat-view-system").classList.toggle("active", tab === "system");
+      if (tab === "history") renderChatSessionList();
+      if (tab === "system") renderChatSystemBox();
+    }
+
+    function updateChatSessionLabel() {
+      $("chat-session-label").textContent = currentSessionId
+        ? currentSessionTitle || "대화 중"
+        : "새 대화";
+    }
+
+    async function loadChatSessionsFromSupabase() {
+      if (!supabase || !currentUser) {
+        chatSessions = [];
+        return;
+      }
+      const { data, error } = await supabase
+        .from("conversation_records")
+        .select("*")
+        .order("updated_at", { ascending: false });
+      if (error) {
+        console.error(error);
+        chatSessions = [];
+        return;
+      }
+      chatSessions = data || [];
+    }
+
+    async function createChatSessionInDb() {
+      const now = new Date();
+      const title = formatSessionTitle(now);
+      currentSystemMessage = getDefaultSystemMessage();
+      const row = {
+        user_id: currentUser.id,
+        title,
+        messages: [],
+        system_message: currentSystemMessage
+      };
+      const { data, error } = await supabase
+        .from("conversation_records")
+        .insert(row)
+        .select()
+        .single();
+      if (error) throw error;
+      currentSessionId = data.id;
+      currentSessionTitle = data.title;
+      currentMessages = [];
+      chatSessions.unshift(data);
+      updateChatSessionLabel();
+      return data;
+    }
+
+    async function ensureChatSession() {
+      if (currentSessionId) return;
+      if (!supabase || !currentUser) {
+        throw new Error("로그인이 필요합니다.");
+      }
+      await createChatSessionInDb();
+    }
+
+    async function persistChatSession() {
+      if (!currentSessionId || !supabase) return;
+      const { data, error } = await supabase
+        .from("conversation_records")
+        .update({
+          messages: currentMessages,
+          system_message: currentSystemMessage
+        })
+        .eq("id", currentSessionId)
+        .select()
+        .single();
+      if (error) throw error;
+      const idx = chatSessions.findIndex(s => s.id === currentSessionId);
+      if (idx >= 0) chatSessions[idx] = data;
+      else chatSessions.unshift(data);
+    }
+
+    function startNewChatSession() {
+      currentSessionId = null;
+      currentSessionTitle = "";
+      currentMessages = [];
+      currentSystemMessage = getDefaultSystemMessage();
+      updateChatSessionLabel();
+      renderChatMessages(true);
+      renderChatSystemBox();
+      renderChatSessionList();
+    }
+
+    async function initChatForUser() {
+      await loadChatSessionsFromSupabase();
+      startNewChatSession();
+    }
+
+    function resetChatForUser() {
+      chatSessions = [];
+      currentSessionId = null;
+      currentSessionTitle = "";
+      currentMessages = [];
+      currentSystemMessage = "";
+      closeChatPanel();
+    }
+
+    function openChatPanel() {
+      chatOpen = true;
+      $("chat-panel").classList.add("open");
+      setupChatbotEvents();
+      initChatbot();
+      $("chat-input").focus();
+    }
+
+    function closeChatPanel() {
+      chatOpen = false;
+      $("chat-panel").classList.remove("open");
+    }
+
+    function toggleChatPanel() {
+      if (chatOpen) closeChatPanel();
+      else openChatPanel();
+    }
+
+    function appendChatMessage(text, role = "bot") {
+      const el = document.createElement("div");
+      el.className = `chat-msg ${role}`;
+      el.textContent = text;
+      const box = $("chat-messages");
+      box.appendChild(el);
+      box.scrollTop = box.scrollHeight;
+      return el;
+    }
+
+    function renderChatMessages(showWelcome = false) {
+      const box = $("chat-messages");
+      box.innerHTML = "";
+      if (!currentMessages.length) {
+        if (showWelcome) {
+          appendChatMessage(
+            "안녕하세요! PlanDay AI입니다 🤖\n일정 조회, D-day 확인, 일정 추가를 도와드릴게요.\n아래 버튼을 누르거나 자유롭게 입력해 보세요.",
+            "bot"
+          );
+        }
+        return;
+      }
+      currentMessages.forEach(m => {
+        appendChatMessage(m.content, m.role === "user" ? "user" : "bot");
+      });
+    }
+
+    function renderChatSessionList() {
+      const box = $("chat-session-list");
+      box.innerHTML = "";
+      if (!chatSessions.length) {
+        box.innerHTML = `<p class="chat-session-empty">저장된 대화 기록이 없습니다.<br>대화 탭에서 메시지를 보내면 기록이 생성됩니다.</p>`;
+        return;
+      }
+      chatSessions.forEach(session => {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "chat-session-item" + (session.id === currentSessionId ? " active" : "");
+        btn.innerHTML = `
+          <div class="session-title">${escapeHtml(session.title || formatSessionTitle(session.created_at))}</div>
+          <div class="session-meta">${formatSessionMeta(session)}</div>`;
+        btn.addEventListener("click", () => openChatSession(session.id));
+        box.appendChild(btn);
+      });
+    }
+
+    function renderChatSystemBox() {
+      const box = $("chat-system-box");
+      if (!currentSessionId && !currentSystemMessage) {
+        box.innerHTML = `<div class="chat-system-label">시스템 메시지</div>새 대화를 시작하면 시스템 설정과 디버그 정보가 여기에 표시됩니다.`;
+        return;
+      }
+      box.innerHTML =
+        `<div class="chat-system-label">시스템 메시지 · ${escapeHtml(currentSessionTitle || "새 대화")}</div>` +
+        escapeHtml(currentSystemMessage || getDefaultSystemMessage());
+    }
+
+    async function openChatSession(id) {
+      let session = chatSessions.find(s => s.id === id);
+      if (!session && supabase) {
+        const { data, error } = await supabase
+          .from("conversation_records")
+          .select("*")
+          .eq("id", id)
+          .single();
+        if (error) {
+          console.error(error);
+          showToast("대화 기록을 불러오지 못했습니다");
+          return;
+        }
+        session = data;
+      }
+      if (!session) return;
+
+      currentSessionId = session.id;
+      currentSessionTitle = session.title;
+      currentMessages = Array.isArray(session.messages) ? session.messages : [];
+      currentSystemMessage = session.system_message || getDefaultSystemMessage();
+      updateChatSessionLabel();
+      renderChatMessages(false);
+      renderChatSystemBox();
+      renderChatSessionList();
+      switchChatTab("messages");
+    }
+
+    function renderChatSuggestions() {
+      const box = $("chat-suggestions");
+      box.innerHTML = "";
+      CHAT_SUGGESTIONS.forEach(label => {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "chat-chip";
+        btn.textContent = label;
+        btn.addEventListener("click", () => sendChatMessage(label));
+        box.appendChild(btn);
+      });
+    }
+
+    function formatEventLine(event, dateStr) {
+      const cat = CATEGORY_LABELS[event.category] || "기타";
+      const imp = event.important ? " ★" : "";
+      return `• ${event.time} ${event.title}${imp} [${cat}]`;
+    }
+
+    function formatEventList(items, emptyMsg) {
+      if (!items.length) return emptyMsg;
+      return items.map(({ event, dateStr }) => formatEventLine(event, dateStr)).join("\n");
+    }
+
+    function parseChatDate(text) {
+      const today = new Date();
+      if (/오늘/.test(text)) return formatDate(today);
+      if (/내일/.test(text)) return addDays(today, 1);
+      if (/모레/.test(text)) return addDays(today, 2);
+      const md = text.match(/(\d{1,2})\s*월\s*(\d{1,2})\s*일/);
+      if (md) {
+        const y = today.getFullYear();
+        return `${y}-${String(md[1]).padStart(2, "0")}-${String(md[2]).padStart(2, "0")}`;
+      }
+      return formatDate(today);
+    }
+
+    function parseChatTime(text) {
+      const hm = text.match(/(\d{1,2})\s*:\s*(\d{2})/);
+      if (hm) return `${String(hm[1]).padStart(2, "0")}:${hm[2]}`;
+      const h = text.match(/(\d{1,2})\s*시(?:\s*(\d{1,2})\s*분)?/);
+      if (h) {
+        const min = h[2] ? String(h[2]).padStart(2, "0") : "00";
+        return `${String(h[1]).padStart(2, "0")}:${min}`;
+      }
+      return "09:00";
+    }
+
+    function parseChatCategory(text) {
+      if (/학교|수업|과제|시험/.test(text)) return "school";
+      if (/업무|회의|알바|일/.test(text)) return "work";
+      if (/개인|약속|운동|식사/.test(text)) return "personal";
+      return "other";
+    }
+
+    function tryParseAddEventCommand(text) {
+      if (!/(추가|등록|넣어|만들)/.test(text)) return null;
+
+      const dateStr = parseChatDate(text);
+      const time = parseChatTime(text);
+
+      let title = "";
+      const patterns = [
+        /(?:오늘|내일|모레|\d{1,2}\s*월\s*\d{1,2}\s*일)?\s*(?:\d{1,2}\s*:\s*\d{2}|\d{1,2}\s*시(?:\s*\d{1,2}\s*분)?)?\s*(?:에\s*)?(.+?)\s*(?:일정\s*)?(?:추가|등록|넣어|만들)/,
+        /(?:추가|등록|넣어)\s*[:\-]?\s*(.+)/,
+        /(.+?)\s*(?:일정\s*)?(?:추가|등록|넣어줘?)/
+      ];
+
+      for (const re of patterns) {
+        const m = text.match(re);
+        if (m?.[1]) {
+          title = m[1]
+            .replace(/^(오늘|내일|모레|\d{1,2}\s*월\s*\d{1,2}\s*일)\s*/g, "")
+            .replace(/(\d{1,2}\s*:\s*\d{2}|\d{1,2}\s*시(?:\s*\d{1,2}\s*분)?)\s*(?:에\s*)?/g, "")
+            .replace(/^(에|을|를)\s*/, "")
+            .trim();
+          if (title) break;
+        }
+      }
+
+      if (!title || title.length < 2) return null;
+      return {
+        title,
+        date: dateStr,
+        time,
+        memo: "",
+        category: parseChatCategory(text),
+        repeat: /매주|반복/.test(text) ? "weekly" : "none",
+        important: /중요/.test(text),
+        dday: /d-?day|디데이/i.test(text)
+      };
+    }
+
+    function getChatScheduleContext() {
+      const todayStr = formatDate(new Date());
+      const todayItems = getEventsForDate(todayStr, false).map(e => ({ event: e, dateStr: todayStr }));
+      const tomorrowStr = addDays(new Date(), 1);
+      const tomorrowItems = getEventsForDate(tomorrowStr, false).map(e => ({ event: e, dateStr: tomorrowStr }));
+      const ddayEvents = events
+        .filter(e => e.dday && getDday(e.date) >= 0)
+        .sort((a, b) => getDday(a.date) - getDday(b.date))
+        .slice(0, 5);
+      const week = getWeekRange();
+      const weekCount = getAllOccurrences(false).filter(o => o.dateStr >= week.start && o.dateStr <= week.end).length;
+
+      return { todayStr, todayItems, tomorrowStr, tomorrowItems, ddayEvents, weekCount };
+    }
+
+    async function handleChatbotMessage(text) {
+      const msg = text.trim();
+      if (!msg) return "메시지를 입력해 주세요.";
+
+      if (/^(안녕|하이|hello|hi)\b/i.test(msg)) {
+        return "안녕하세요! PlanDay AI입니다.\n오늘·내일 일정 조회, D-day 확인, 일정 추가를 도와드려요.\n예: \"내일 3시에 스터디 추가\"";
+      }
+
+      if (/도움|help|명령|사용법/.test(msg)) {
+        return [
+          "📌 사용 가능한 명령",
+          "• 오늘 일정 / 내일 일정",
+          "• D-day / 디데이",
+          "• 이번 주 일정",
+          "• ○○ 검색 (예: 과제 검색)",
+          "• 내일 3시에 스터디 추가",
+          "• 오늘 14:00 회의 등록"
+        ].join("\n");
+      }
+
+      const addData = tryParseAddEventCommand(msg);
+      if (addData) {
+        await pushNewEvent(addData);
+        renderAll();
+        return `✅ 일정을 추가했어요!\n${formatDisplayDate(addData.date)} ${addData.time}\n「${addData.title}」`;
+      }
+
+      const ctx = getChatScheduleContext();
+
+      if (/오늘.*일정|일정.*오늘/.test(msg) || msg === "오늘") {
+        const lines = formatEventList(ctx.todayItems, "오늘 등록된 일정이 없어요.");
+        return `📅 오늘 일정 (${ctx.todayItems.length}개)\n${lines}`;
+      }
+
+      if (/내일.*일정|일정.*내일/.test(msg) || msg === "내일") {
+        const lines = formatEventList(ctx.tomorrowItems, "내일 일정이 없어요.");
+        return `📅 내일 일정 (${ctx.tomorrowItems.length}개)\n${lines}`;
+      }
+
+      if (/d-?day|디데이|디 데이/i.test(msg)) {
+        if (!ctx.ddayEvents.length) return "등록된 D-day 일정이 없어요.";
+        const lines = ctx.ddayEvents
+          .map(e => `• ${getDdayLabel(e.date)} ${e.title} (${formatDisplayDate(e.date)})`)
+          .join("\n");
+        return `⏰ D-day 일정\n${lines}`;
+      }
+
+      if (/이번\s*주|주간/.test(msg)) {
+        return `📊 이번 주 일정 ${ctx.weekCount}개가 있어요.\n달력 탭에서 자세히 볼 수 있어요.`;
+      }
+
+      const searchMatch = msg.match(/(.+?)\s*(?:검색|찾|알려)/);
+      const keyword = (searchMatch?.[1] || msg)
+        .replace(/일정|검색|찾아|알려줘/g, "")
+        .trim();
+      if (keyword.length >= 2 && /검색|찾|알려/.test(msg)) {
+        const q = keyword.toLowerCase();
+        const matches = getAllOccurrences(false)
+          .filter(({ event }) =>
+            event.title.toLowerCase().includes(q) ||
+            event.memo.toLowerCase().includes(q)
+          )
+          .slice(0, 8);
+        if (!matches.length) return `「${keyword}」 관련 일정을 찾지 못했어요.`;
+        const lines = matches
+          .map(({ event, dateStr }) => `• ${getRelativeLabel(dateStr)} ${formatEventLine(event, dateStr)}`)
+          .join("\n");
+        return `🔍 검색 결과\n${lines}`;
+      }
+
+      if (/몇\s*개|개수|통계/.test(msg)) {
+        return `📊 오늘 ${ctx.todayItems.length}개, 내일 ${ctx.tomorrowItems.length}개, 이번 주 ${ctx.weekCount}개 일정이 있어요.`;
+      }
+
+      return "잘 이해하지 못했어요.\n「오늘 일정」, 「D-day」, 「내일 3시에 스터디 추가」처럼 말씀해 주세요.\n도움말을 입력하면 사용법을 볼 수 있어요.";
+    }
+
+    async function sendChatMessage(text) {
+      const msg = text.trim();
+      if (!msg) return;
+
+      try {
+        await ensureChatSession();
+      } catch (err) {
+        console.error(err);
+        appendChatMessage("대화 기록을 저장하려면 로그인이 필요합니다.", "bot");
+        return;
+      }
+
+      const userEntry = { role: "user", content: msg, created_at: new Date().toISOString() };
+      currentMessages.push(userEntry);
+      appendChatMessage(msg, "user");
+      $("chat-input").value = "";
+
+      const typing = appendChatMessage("답변 생성 중...", "bot typing");
+      await new Promise(r => setTimeout(r, 280));
+      typing.remove();
+
+      try {
+        const reply = await handleChatbotMessage(msg);
+        const assistantEntry = { role: "assistant", content: reply, created_at: new Date().toISOString() };
+        currentMessages.push(assistantEntry);
+        appendChatMessage(reply, "bot");
+        appendSystemLog(`user: "${msg.slice(0, 40)}" → rule-based 응답 (${reply.length}자)`);
+        await persistChatSession();
+        updateChatSessionLabel();
+        if (chatActiveTab === "history") renderChatSessionList();
+        if (chatActiveTab === "system") renderChatSystemBox();
+      } catch (err) {
+        console.error(err);
+        appendChatMessage("오류가 발생했어요. 잠시 후 다시 시도해 주세요.", "bot");
+      }
+    }
+
+    function initChatbot() {
+      renderChatMessages(true);
+      renderChatSuggestions();
+      renderChatSystemBox();
+      switchChatTab("messages");
+    }
+
+    function setupChatbotEvents() {
+      if (chatInitialized) return;
+      chatInitialized = true;
+
+      $("chat-fab").addEventListener("click", toggleChatPanel);
+      $("chat-close").addEventListener("click", closeChatPanel);
+      $("chat-new-btn").addEventListener("click", startNewChatSession);
+      document.querySelectorAll(".chat-tab").forEach(btn => {
+        btn.addEventListener("click", () => switchChatTab(btn.dataset.chatTab));
+      });
+      $("chat-form").addEventListener("submit", e => {
+        e.preventDefault();
+        sendChatMessage($("chat-input").value);
+      });
     }
 
     document.querySelectorAll(".tab-btn").forEach(b => b.addEventListener("click", () => switchTab(b.dataset.tab)));
@@ -2371,13 +3627,14 @@
         repeat: $("repeat").value,
         important: $("important").checked,
         dday: $("dday").checked
+      }).then(() => {
+        e.target.reset();
+        $("date").value = formatDate(new Date());
+        $("time").value = "09:00";
+        renderAll();
+        showToast("일정이 저장되었습니다");
+        switchTab("dashboard");
       });
-      e.target.reset();
-      $("date").value = formatDate(new Date());
-      $("time").value = "09:00";
-      renderAll();
-      showToast("일정이 저장되었습니다");
-      switchTab("dashboard");
     });
 
     $("modal-add-form").addEventListener("submit", e => {
@@ -2391,13 +3648,14 @@
         repeat: $("modal-add-repeat").value,
         important: $("modal-add-important").checked,
         dday: $("modal-add-dday").checked
+      }).then(() => {
+        hideModalAddForm();
+        renderAll();
+        showToast("일정이 저장되었습니다");
+        if (eventModalContext?.type === "day") {
+          $("cal-day-modal-add-btn").hidden = false;
+        }
       });
-      hideModalAddForm();
-      renderAll();
-      showToast("일정이 저장되었습니다");
-      if (eventModalContext?.type === "day") {
-        $("cal-day-modal-add-btn").hidden = false;
-      }
     });
 
     $("cal-day-modal-add-btn").addEventListener("click", () => {
@@ -2429,11 +3687,56 @@
         important: $("edit-important").checked,
         dday: $("edit-dday").checked
       });
-      saveEvents();
-      closeEdit();
-      renderAll();
-      showToast("일정이 수정되었습니다");
+      saveEvents().then(() => {
+        closeEdit();
+        renderAll();
+        showToast("일정이 수정되었습니다");
+      });
     });
+
+    $("login-form").addEventListener("submit", async e => {
+      e.preventDefault();
+      $("login-error").textContent = "";
+      const email = $("login-email").value.trim();
+      const password = $("login-password").value;
+      try {
+        const { error } = await supabase.auth.signInWithPassword({ email, password });
+        if (error) throw error;
+      } catch (err) {
+        $("login-error").style.color = "var(--danger)";
+        $("login-error").textContent = err.message || "로그인에 실패했습니다";
+      }
+    });
+
+    $("signup-form").addEventListener("submit", async e => {
+      e.preventDefault();
+      $("signup-error").textContent = "";
+      const email = $("signup-email").value.trim();
+      const password = $("signup-password").value;
+      const password2 = $("signup-password2").value;
+      if (password !== password2) {
+        $("signup-error").style.color = "var(--danger)";
+        $("signup-error").textContent = "비밀번호가 일치하지 않습니다";
+        return;
+      }
+      try {
+        const { error } = await supabase.auth.signUp({ email, password });
+        if (error) throw error;
+        showAuthLoginPage();
+        $("login-email").value = email;
+        $("login-password").value = "";
+        $("login-error").style.color = "var(--success)";
+        $("login-error").textContent = "가입 완료! 로그인해 주세요.";
+      } catch (err) {
+        $("signup-error").style.color = "var(--danger)";
+        $("signup-error").textContent = err.message || "회원가입에 실패했습니다";
+      }
+    });
+
+    $("go-signup").addEventListener("click", showAuthSignupPage);
+    $("go-login").addEventListener("click", showAuthLoginPage);
+
+    $("logout-btn").addEventListener("click", onLogout);
 
     $("edit-cancel").addEventListener("click", closeEdit);
     $("edit-modal").addEventListener("click", e => { if (e.target === $("edit-modal")) closeEdit(); });
@@ -2445,11 +3748,7 @@
     $("list-select-all").addEventListener("click", toggleListSelectAll);
     $("list-delete-selected").addEventListener("click", deleteSelectedEvents);
 
-    initTheme();
-    seedSampleData();
-    $("date").value = formatDate(new Date());
-    $("time").value = "09:00";
-    renderAll();
+    initApp();
   </script>
 </body>
 </html>
