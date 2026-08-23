@@ -19,7 +19,7 @@
 
 1. [supabase.com](https://supabase.com)에서 프로젝트 생성
 2. **Authentication → Providers → Email** 활성화
-3. **SQL Editor**에서 `database/` 폴더 SQL을 강의 순서대로 실행
+3. **SQL Editor**에서 `database/` 폴더 SQL을 순서대로 실행
 4. **Project Settings → API**에서 URL과 Anon key 복사
 5. `js/supabase-config.example.js`를 복사해 `js/supabase-config.js` 생성 후 값 입력
 
@@ -42,7 +42,7 @@ Supabase 키를 비워두면 **localStorage** 모드로 동작합니다.
 
 `index.html` 파일을 브라우저에서 열거나, GitHub Pages / Vercel로 배포하세요.
 
-## 13~14장 — 관리자 서비스
+## 관리자 서비스
 
 - SQL·보안·사용량: `database/` 폴더, `admin/README.md`
 - 관리자 앱: **상위 폴더** `../admin-template/` (SvelteKit, GitHub **Private** `planday-admin`)
