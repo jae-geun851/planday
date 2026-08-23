@@ -32,6 +32,19 @@ Supabase 키를 비워두면 기존처럼 **localStorage**로 동작합니다.
 
 `index.html` 파일을 브라우저에서 열거나, GitHub Pages / Vercel로 배포하세요.
 
+## 13장 — 관리자 서비스
+
+### 13-1 마일스톤
+- SQL: `database/create_admin_roles.sql`
+- 안내: [`admin/README.md`](admin/README.md)
+
+### 13-2 클론 · 동시 실행
+- 관리자 템플릿: **상위 폴더** `../admin-template/` (SvelteKit)
+- 워크스페이스: Cursor에서 **`바이브코딩 웹개발`** 폴더 열기
+- 사용자 서비스: `npm run dev` → http://localhost:5173
+- 관리자 템플릿: `cd ../admin-template && npm run dev -- --port 5174`
+- 상세: [`../README-13-2.md`](../README-13-2.md)
+
 ## GitHub
 
 https://github.com/jae-geun851/planday

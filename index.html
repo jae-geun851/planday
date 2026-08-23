@@ -1,1556 +1,11 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>PlanDay</title>
-  <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-
-    :root {
-      --bg: #f0f2f5;
-      --surface: #ffffff;
-      --text: #1a1a2e;
-      --text-muted: #6b7280;
-      --primary: #4f6ef7;
-      --primary-hover: #3d5ce0;
-      --border: #e5e7eb;
-      --danger: #ef4444;
-      --success: #10b981;
-      --today: #eef2ff;
-      --important-bg: #fff8f0;
-      --shadow: 0 1px 3px rgba(0,0,0,0.08);
-      --sidebar-w: 260px;
-      --cat-school: #3b82f6;
-      --cat-personal: #10b981;
-      --cat-work: #f59e0b;
-      --cat-other: #8b5cf6;
-    }
-
-    [data-theme="dark"] {
-      --bg: #0d1117;
-      --surface: #161b22;
-      --text: #e6edf3;
-      --text-muted: #8b949e;
-      --primary: #6b8cff;
-      --primary-hover: #5a7af0;
-      --border: #30363d;
-      --today: #1c2333;
-      --important-bg: #2d2218;
-      --shadow: 0 1px 3px rgba(0,0,0,0.4);
-    }
-
-    html, body {
-      height: 100%;
-      overflow: hidden;
-    }
-
-    body {
-      font-family: "Segoe UI", "Malgun Gothic", sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      line-height: 1.4;
-    }
-
-    .app-shell {
-      display: flex;
-      height: 100vh;
-      max-width: 1280px;
-      margin: 0 auto;
-      overflow: hidden;
-    }
-
-    .sidebar {
-      width: var(--sidebar-w);
-      flex-shrink: 0;
-      background: var(--surface);
-      border-right: 1px solid var(--border);
-      padding: 14px 14px 12px;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-      position: sticky;
-      top: 0;
-      height: 100vh;
-      overflow: hidden;
-    }
-
-    .sidebar-body {
-      flex: 1;
-      min-height: 0;
-      overflow: hidden;
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }
-
-    .sidebar-auth-block {
-      flex-shrink: 0;
-      padding-top: 8px;
-      border-top: 1px solid var(--border);
-    }
-
-    .sidebar-brand h1 {
-      font-size: 1.25rem;
-      font-weight: 800;
-      color: var(--primary);
-    }
-
-    .sidebar-brand p {
-      font-size: 0.8rem;
-      color: var(--text-muted);
-      margin-top: 2px;
-    }
-
-    .sidebar-top {
-      display: flex;
-      align-items: flex-start;
-      justify-content: space-between;
-      gap: 8px;
-    }
-
-    .sidebar-block {
-      flex-shrink: 0;
-    }
-
-    .theme-btn {
-      flex-shrink: 0;
-      border: 1px solid var(--border);
-      background: var(--bg);
-      border-radius: 8px;
-      padding: 5px 8px;
-      font-size: 0.8rem;
-      cursor: pointer;
-      color: var(--text);
-    }
-
-    .theme-btn:hover { border-color: var(--primary); }
-
-    .sidebar-block h3 {
-      font-size: 0.72rem;
-      font-weight: 700;
-      color: var(--text-muted);
-      text-transform: uppercase;
-      letter-spacing: 0.04em;
-      margin-bottom: 6px;
-    }
-
-    .search-box {
-      width: 100%;
-      padding: 8px 10px;
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      font-size: 0.85rem;
-      font-family: inherit;
-      background: var(--surface);
-      color: var(--text);
-    }
-
-    .search-box:focus {
-      outline: none;
-      border-color: var(--primary);
-      box-shadow: 0 0 0 3px rgba(79,110,247,0.15);
-    }
-
-    .search-results {
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-      max-height: 64px;
-      overflow-y: auto;
-    }
-
-    .search-item {
-      padding: 6px 8px;
-      background: var(--bg);
-      border-radius: 6px;
-      font-size: 0.8rem;
-      cursor: pointer;
-      border-left: 3px solid var(--primary);
-    }
-
-    .search-item:hover { background: var(--today); }
-
-    .progress-wrap { margin-bottom: 4px; }
-
-    .progress-header {
-      display: flex;
-      justify-content: space-between;
-      font-size: 0.8rem;
-      margin-bottom: 6px;
-    }
-
-    .progress-bar {
-      height: 8px;
-      background: var(--bg);
-      border-radius: 999px;
-      overflow: hidden;
-    }
-
-    .progress-fill {
-      height: 100%;
-      background: linear-gradient(90deg, var(--primary), #6b8cff);
-      border-radius: 999px;
-      transition: width 0.3s;
-    }
-
-    .dday-list {
-      display: grid;
-      grid-template-rows: repeat(3, 1fr);
-      gap: 5px;
-      min-height: 0;
-    }
-
-    .dday-item {
-      padding: 7px 10px;
-      background: var(--bg);
-      border-radius: 8px;
-      border-left: 3px solid var(--danger);
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      min-height: 0;
-    }
-
-    .sidebar-block-dday {
-      display: flex;
-      flex-direction: column;
-    }
-
-    .sidebar-block-dday .dday-list {
-      min-height: 150px;
-    }
-
-    .sidebar-block-dday .pagination {
-      padding-top: 4px;
-    }
-
-    .dday-item .days {
-      font-size: 0.95rem;
-      font-weight: 800;
-      color: var(--danger);
-    }
-
-    .dday-item .title { font-size: 0.82rem; font-weight: 600; margin-top: 1px; }
-    .dday-item .date { font-size: 0.7rem; color: var(--text-muted); }
-
-    .legend { display: flex; flex-direction: column; gap: 4px; }
-
-    .legend-item {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      font-size: 0.8rem;
-    }
-
-    .legend-dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      flex-shrink: 0;
-    }
-
-    .main {
-      flex: 1;
-      min-width: 0;
-      padding: 12px 16px;
-      display: flex;
-      flex-direction: column;
-      overflow: hidden;
-    }
-
-    .tabs {
-      display: flex;
-      gap: 6px;
-      margin-bottom: 10px;
-      background: var(--surface);
-      padding: 5px;
-      border-radius: 12px;
-      box-shadow: var(--shadow);
-      flex-shrink: 0;
-    }
-
-    .tab-btn {
-      flex: 1;
-      border: none;
-      background: transparent;
-      padding: 10px 8px;
-      border-radius: 8px;
-      font-size: 0.9rem;
-      font-weight: 600;
-      color: var(--text-muted);
-      cursor: pointer;
-    }
-
-    .tab-btn.active { background: var(--primary); color: #fff; }
-
-    .panel {
-      display: none;
-      background: var(--surface);
-      border-radius: 14px;
-      padding: 14px;
-      box-shadow: var(--shadow);
-      flex: 1;
-      min-height: 0;
-      overflow: hidden;
-    }
-
-    .panel.active { display: flex; flex-direction: column; }
-
-    #panel-calendar.active {
-      display: flex;
-      flex-direction: column;
-      overflow: hidden;
-    }
-
-    #panel-add.active { overflow-y: auto; display: block; }
-
-    .cal-wrap {
-      display: flex;
-      flex-direction: column;
-      flex: 1;
-      min-height: 0;
-      height: 100%;
-    }
-
-    .dash-fit {
-      display: grid;
-      grid-template-rows: auto auto 1fr;
-      gap: 10px;
-      height: 100%;
-      min-height: 0;
-    }
-
-    .dash-top {
-      display: grid;
-      grid-template-columns: 1fr 1fr auto;
-      gap: 10px;
-      align-items: stretch;
-    }
-
-    .dash-greeting {
-      background: var(--bg);
-      border-radius: 10px;
-      padding: 10px 12px;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-    }
-
-    .dash-greeting,
-    #next-event-box {
-      min-height: 72px;
-    }
-
-    #next-event-box {
-      display: flex;
-      align-self: stretch;
-    }
-
-    #next-event-box .next-event {
-      flex: 1;
-      width: 100%;
-    }
-
-    .dash-greeting h2 {
-      font-size: 0.95rem;
-      font-weight: 700;
-      line-height: 1.35;
-    }
-
-    .dash-greeting p { color: var(--text-muted); font-size: 0.78rem; margin-top: 3px; }
-
-    .stat-grid {
-      display: flex;
-      flex-direction: column;
-      gap: 5px;
-      justify-content: center;
-      width: 108px;
-    }
-
-    .stat-card {
-      background: var(--bg);
-      border-radius: 8px;
-      padding: 6px 10px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 10px;
-      width: 100%;
-    }
-
-    .stat-card .label {
-      font-size: 0.68rem;
-      color: var(--text-muted);
-      white-space: nowrap;
-      flex-shrink: 0;
-    }
-
-    .stat-card .num {
-      font-size: 0.95rem;
-      font-weight: 700;
-      color: var(--primary);
-      text-align: right;
-      min-width: 1em;
-      flex-shrink: 0;
-    }
-
-    .dash-section h3 {
-      font-size: 0.82rem;
-      font-weight: 700;
-      margin-bottom: 8px;
-      flex-shrink: 0;
-    }
-
-    .dash-section-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 8px;
-      flex-shrink: 0;
-    }
-
-    .dash-section-header h3 { margin-bottom: 0; }
-
-    .sortable-list,
-    .upcoming-list {
-      flex: 1;
-      min-height: 0;
-      overflow: hidden;
-      display: grid;
-      grid-template-rows: repeat(6, 1fr);
-      gap: 8px;
-    }
-
-    .upcoming-list { grid-template-rows: repeat(6, 1fr); }
-
-    .link-btn {
-      border: none;
-      background: transparent;
-      color: var(--primary);
-      font-size: 0.8rem;
-      font-weight: 600;
-      cursor: pointer;
-    }
-
-    .next-event {
-      background: linear-gradient(135deg, #4f6ef7, #6b8cff);
-      color: #fff;
-      border-radius: 10px;
-      padding: 10px 12px;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-    }
-
-    .next-event-label { font-size: 0.65rem; opacity: 0.85; margin-bottom: 3px; }
-    .next-event-title { font-size: 0.95rem; font-weight: 700; }
-    .next-event-meta { font-size: 0.72rem; opacity: 0.9; margin-top: 2px; }
-
-    .dash-mid {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .dash-mid .mini-week { flex: 1; }
-
-    .dash-bottom {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-      min-height: 0;
-      overflow: hidden;
-    }
-
-    .dash-section {
-      background: var(--bg);
-      border-radius: 10px;
-      padding: 10px;
-      display: flex;
-      flex-direction: column;
-      min-height: 0;
-      overflow: hidden;
-    }
-
-    .section-hint {
-      font-size: 0.65rem;
-      color: var(--text-muted);
-      font-weight: 500;
-    }
-
-    .pagination {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      padding-top: 6px;
-      flex-shrink: 0;
-    }
-
-    .page-btn {
-      border: 1px solid var(--border);
-      background: var(--surface);
-      border-radius: 6px;
-      padding: 4px 10px;
-      font-size: 0.72rem;
-      font-weight: 600;
-      cursor: pointer;
-      color: var(--text);
-    }
-
-    .page-btn:hover:not(:disabled) { border-color: var(--primary); color: var(--primary); }
-    .page-btn:disabled { opacity: 0.35; cursor: not-allowed; }
-
-    .page-info {
-      font-size: 0.72rem;
-      color: var(--text-muted);
-      min-width: 48px;
-      text-align: center;
-    }
-
-    .list-pagination {
-      flex-shrink: 0;
-      padding-top: 8px;
-      margin-top: 0;
-    }
-
-    #panel-list.active {
-      display: flex;
-      flex-direction: column;
-      overflow: hidden;
-    }
-
-    #panel-list .event-list {
-      flex: 1;
-      min-height: 0;
-      overflow: hidden;
-      display: grid;
-      grid-template-rows: repeat(5, 1fr);
-      gap: 8px;
-      list-style: none;
-    }
-
-    #panel-list .event-item {
-      margin-bottom: 0;
-      min-height: 0;
-      height: 100%;
-      align-items: center;
-    }
-
-    .select-check {
-      flex-shrink: 0;
-      width: 18px;
-      height: 18px;
-      margin-top: 2px;
-      cursor: pointer;
-      accent-color: var(--primary);
-    }
-
-    .list-actions {
-      display: flex;
-      gap: 8px;
-      padding-top: 8px;
-      flex-shrink: 0;
-    }
-
-    .list-actions[hidden] {
-      display: none !important;
-    }
-
-    #list-normal-actions {
-      justify-content: flex-end;
-    }
-
-    .list-action-btn {
-      flex: 1;
-      padding: 10px;
-      border: 1px solid var(--border);
-      border-radius: 9px;
-      background: var(--surface);
-      font-size: 0.85rem;
-      font-weight: 600;
-      cursor: pointer;
-      color: var(--text);
-      font-family: inherit;
-    }
-
-    #list-enter-delete {
-      flex: 0 0 auto;
-      width: auto;
-      padding: 6px 14px;
-      font-size: 0.78rem;
-    }
-
-    .list-action-btn:hover { border-color: var(--primary); color: var(--primary); }
-
-    .list-delete-btn {
-      background: var(--danger);
-      border-color: var(--danger);
-      color: #fff;
-    }
-
-    .list-delete-btn:hover {
-      background: #dc2626;
-      border-color: #dc2626;
-      color: #fff;
-    }
-
-    .list-delete-btn:disabled {
-      opacity: 0.45;
-      cursor: not-allowed;
-    }
-
-    #panel-list .event-item.delete-selectable {
-      cursor: pointer;
-      transition: background 0.15s, box-shadow 0.15s;
-    }
-
-    #panel-list .event-item.selected-for-delete {
-      background: rgba(79, 110, 247, 0.14);
-      box-shadow: inset 0 0 0 2px var(--primary);
-      opacity: 1;
-    }
-
-    #panel-list .event-item.selected-for-delete.important {
-      background: rgba(79, 110, 247, 0.22);
-    }
-
-    #panel-list .event-item.selected-for-delete.done .event-title {
-      text-decoration: none;
-    }
-
-    #panel-list .check-btn.delete-select.checked {
-      background: var(--primary);
-      border-color: var(--primary);
-    }
-
-    #panel-list .event-item.delete-selectable .item-actions {
-      display: none;
-    }
-
-    .mini-week {
-      display: grid;
-      grid-template-columns: repeat(7, 1fr);
-      gap: 4px;
-    }
-
-    .mini-day {
-      text-align: center;
-      padding: 6px 2px;
-      border-radius: 8px;
-      background: var(--bg);
-      border: none;
-      cursor: pointer;
-      font-family: inherit;
-      color: var(--text);
-    }
-
-    .mini-day.today { box-shadow: inset 0 0 0 2px var(--primary); background: var(--today); }
-    .mini-day-name { font-size: 0.6rem; color: var(--text-muted); font-weight: 600; }
-    .mini-day-num { font-size: 0.85rem; font-weight: 700; margin: 2px 0; color: var(--text); }
-    .mini-dots { display: flex; justify-content: center; gap: 2px; min-height: 5px; }
-    .mini-dot { width: 4px; height: 4px; border-radius: 50%; background: var(--primary); }
-
-    .cat-summary { display: flex; flex-wrap: wrap; gap: 6px; }
-
-    .cat-pill {
-      padding: 6px 10px;
-      background: var(--bg);
-      border-radius: 999px;
-      font-size: 0.75rem;
-      font-weight: 600;
-      border: none;
-      cursor: pointer;
-      font-family: inherit;
-      color: var(--text);
-    }
-
-    .cat-pill:hover {
-      background: var(--today);
-      color: var(--primary);
-    }
-
-    .list-empty {
-      text-align: center;
-      color: var(--text-muted);
-      padding: 20px;
-      font-size: 0.85rem;
-    }
-
-    .event-card, .event-item {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      padding: 8px;
-      background: var(--surface);
-      border-radius: 8px;
-      margin-bottom: 0;
-      border-left: 3px solid var(--cat-other);
-    }
-
-    .dash-bottom .event-card {
-      min-height: 0;
-      height: 100%;
-      padding: 10px 12px;
-      align-items: center;
-      margin-bottom: 0;
-      background: var(--surface);
-    }
-
-    .dash-bottom .event-card .event-memo { display: none; }
-    .dash-bottom .event-card .event-title { font-size: 0.92rem; }
-    .dash-bottom .event-card .event-sub { font-size: 0.78rem; }
-    .dash-bottom .event-date-box {
-      width: 50px;
-      padding: 6px 4px;
-    }
-    .dash-bottom .event-date-box .month { font-size: 0.68rem; }
-    .dash-bottom .event-date-box .day { font-size: 1.15rem; }
-    .dash-bottom .check-btn {
-      width: 24px;
-      height: 24px;
-      font-size: 0.7rem;
-    }
-    .dash-bottom .drag-handle { font-size: 0.85rem; }
-    .dash-bottom .icon-btn { font-size: 1rem; padding: 4px 6px; }
-
-    .event-item { list-style: none; margin-bottom: 6px; border-bottom: none; align-items: flex-start; }
-    .event-card.cat-school, .event-item.cat-school { border-left-color: var(--cat-school); }
-    .event-card.cat-personal, .event-item.cat-personal { border-left-color: var(--cat-personal); }
-    .event-card.cat-work, .event-item.cat-work { border-left-color: var(--cat-work); }
-    .event-card.cat-other, .event-item.cat-other { border-left-color: var(--cat-other); }
-    .event-card.important, .event-item.important { background: var(--important-bg); }
-    .event-card.done, .event-item.done { opacity: 0.55; }
-    .event-card.done .event-title, .event-item.done .event-title { text-decoration: line-through; }
-
-    .drag-handle {
-      flex-shrink: 0;
-      cursor: grab;
-      color: var(--text-muted);
-      font-size: 0.85rem;
-      padding: 0 2px;
-      user-select: none;
-    }
-
-    .event-card.dragging { opacity: 0.45; }
-    .event-card.drag-over { box-shadow: 0 0 0 2px var(--primary); }
-
-    .check-btn {
-      flex-shrink: 0;
-      width: 22px;
-      height: 22px;
-      border: 2px solid var(--border);
-      border-radius: 6px;
-      background: var(--surface);
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 0.75rem;
-      color: #fff;
-      margin-top: 2px;
-    }
-
-    .check-btn.checked {
-      background: var(--success);
-      border-color: var(--success);
-    }
-
-    .event-main, .event-body { flex: 1; min-width: 0; }
-    .event-title, .event-body h4 { font-size: 0.92rem; font-weight: 600; }
-    .event-meta, .event-sub { font-size: 0.78rem; color: var(--text-muted); margin-top: 2px; }
-    .event-memo { font-size: 0.78rem; color: var(--text-muted); margin-top: 4px; }
-
-    .badge {
-      display: inline-block;
-      font-size: 0.65rem;
-      font-weight: 700;
-      padding: 2px 6px;
-      border-radius: 999px;
-      color: #fff;
-      margin-left: 4px;
-    }
-
-    .badge-important { background: #ef4444; }
-    .badge-repeat { background: #6366f1; }
-    .badge-dday { background: #f97316; }
-    .badge-cat-school { background: var(--cat-school); }
-    .badge-cat-personal { background: var(--cat-personal); }
-    .badge-cat-work { background: var(--cat-work); }
-    .badge-cat-other { background: var(--cat-other); }
-
-    .item-actions { display: flex; gap: 2px; flex-shrink: 0; }
-
-    .icon-btn {
-      border: none;
-      background: transparent;
-      color: var(--text-muted);
-      font-size: 0.95rem;
-      cursor: pointer;
-      padding: 4px 6px;
-      border-radius: 6px;
-    }
-
-    .icon-btn:hover { background: var(--bg); color: var(--primary); }
-    .icon-btn.del:hover { color: var(--danger); background: rgba(239,68,68,0.12); }
-
-    .compact .event-memo { display: none; }
-    .compact .icon-btn { padding: 2px 4px; font-size: 0.85rem; }
-
-    .event-list { list-style: none; }
-
-    .event-date-box {
-      flex-shrink: 0;
-      width: 48px;
-      text-align: center;
-      background: var(--surface);
-      border-radius: 8px;
-      padding: 6px 4px;
-    }
-
-    .event-date-box .month { font-size: 0.65rem; color: var(--text-muted); }
-    .event-date-box .day { font-size: 1.1rem; font-weight: 700; color: var(--text); }
-
-    .cal-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 10px;
-      flex-shrink: 0;
-    }
-
-    .cal-header h2 {
-      font-size: 1.1rem;
-      font-weight: 700;
-      color: var(--text);
-    }
-
-    .cal-nav button {
-      border: 1px solid var(--border);
-      background: var(--surface);
-      height: 34px;
-      min-width: 34px;
-      border-radius: 8px;
-      cursor: pointer;
-      padding: 0 8px;
-      color: var(--text);
-      font-family: inherit;
-    }
-
-    .cal-weekdays {
-      display: grid;
-      grid-template-columns: repeat(7, 1fr);
-      text-align: center;
-      font-size: 0.72rem;
-      font-weight: 600;
-      color: var(--text-muted);
-      margin-bottom: 4px;
-      flex-shrink: 0;
-    }
-
-    .cal-grid {
-      display: grid;
-      grid-template-columns: repeat(7, 1fr);
-      grid-template-rows: repeat(6, 1fr);
-      gap: 3px;
-      flex: 1;
-      min-height: 0;
-    }
-
-    .cal-day {
-      border: 1px solid transparent;
-      background: var(--bg);
-      border-radius: 6px;
-      font-size: 0.85rem;
-      cursor: pointer;
-      position: relative;
-      color: var(--text);
-      font-family: inherit;
-      display: flex;
-      flex-direction: column;
-      align-items: stretch;
-      padding: 3px 4px;
-      min-height: 0;
-      overflow: hidden;
-      text-align: left;
-    }
-
-    .cal-day-num {
-      font-size: 0.72rem;
-      font-weight: 700;
-      line-height: 1.2;
-      flex-shrink: 0;
-    }
-
-    .cal-cell-events {
-      flex: 1;
-      min-height: 0;
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
-      overflow: hidden;
-      margin-top: 2px;
-    }
-
-    .cal-event-pill {
-      display: block;
-      font-size: 0.58rem;
-      font-weight: 600;
-      padding: 1px 4px;
-      border-radius: 3px;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      background: var(--surface);
-      border-left: 2px solid var(--cat-other);
-      line-height: 1.3;
-    }
-
-    .cal-event-pill.cat-school { border-left-color: var(--cat-school); }
-    .cal-event-pill.cat-personal { border-left-color: var(--cat-personal); }
-    .cal-event-pill.cat-work { border-left-color: var(--cat-work); }
-    .cal-event-pill.cat-other { border-left-color: var(--cat-other); }
-
-    .cal-event-more {
-      font-size: 0.58rem;
-      color: var(--text-muted);
-      font-weight: 700;
-      padding: 0 2px;
-    }
-
-    .cal-day.today {
-      background: var(--today);
-      border-color: var(--primary);
-    }
-
-    .cal-day.today .cal-day-num { color: var(--primary); }
-
-    .cal-day.selected {
-      background: var(--primary);
-      border-color: var(--primary);
-      color: #fff;
-    }
-
-    .cal-day.selected .cal-day-num { color: #fff; }
-
-    .cal-day.selected .cal-event-pill {
-      background: rgba(255,255,255,0.92);
-      color: var(--text);
-    }
-
-    .cal-day.selected .cal-event-more { color: rgba(255,255,255,0.85); }
-
-    .cal-day.other-month {
-      background: transparent;
-      opacity: 0.6;
-    }
-
-    .cal-day.other-month .cal-day-num {
-      font-size: 0.65rem;
-      color: var(--text-muted);
-    }
-
-    .cal-day.other-month.today {
-      opacity: 1;
-    }
-
-    .cal-day.other-month.selected {
-      opacity: 1;
-    }
-
-    .cal-day.empty {
-      cursor: default;
-      background: transparent;
-      border-color: transparent;
-      pointer-events: none;
-    }
-
-    .cal-day-modal-events {
-      list-style: none;
-      max-height: 50vh;
-      overflow-y: auto;
-      margin-bottom: 14px;
-    }
-
-    .cal-day-modal-events .event-item { margin-bottom: 6px; }
-
-    .modal-add-form-wrap {
-      margin-bottom: 14px;
-      padding-top: 14px;
-      border-top: 1px solid var(--border);
-    }
-
-    .modal-add-date-label {
-      font-size: 0.85rem;
-      font-weight: 600;
-      color: var(--text-muted);
-      margin-bottom: 12px;
-    }
-
-    .modal-footer-actions {
-      display: flex;
-      gap: 8px;
-    }
-
-    .modal-footer-actions .submit-btn,
-    .modal-footer-actions .cancel-btn {
-      flex: 1;
-      width: auto;
-    }
-
-    .form-group { margin-bottom: 14px; }
-
-    .form-group label {
-      display: block;
-      font-size: 0.82rem;
-      font-weight: 600;
-      margin-bottom: 5px;
-    }
-
-    .form-group input,
-    .form-group textarea,
-    .form-group select {
-      width: 100%;
-      padding: 9px 11px;
-      border: 1px solid var(--border);
-      border-radius: 9px;
-      font-size: 0.92rem;
-      font-family: inherit;
-      background: var(--surface);
-      color: var(--text);
-    }
-
-    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-
-    .checkbox-row {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      margin-bottom: 12px;
-    }
-
-    .checkbox-row input { width: auto; }
-    .checkbox-row label { font-size: 0.88rem; font-weight: 600; cursor: pointer; }
-
-    .submit-btn, .cancel-btn {
-      padding: 11px;
-      border: none;
-      border-radius: 9px;
-      font-size: 0.95rem;
-      font-weight: 600;
-      cursor: pointer;
-    }
-
-    .submit-btn { width: 100%; background: var(--primary); color: #fff; }
-    .submit-btn:hover { background: var(--primary-hover); }
-
-    .form-actions { display: flex; gap: 8px; }
-    .form-actions .submit-btn { flex: 1; }
-    .cancel-btn { background: var(--bg); color: var(--text-muted); padding: 11px 16px; }
-
-    .modal-overlay {
-      display: none;
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.4);
-      z-index: 200;
-      align-items: center;
-      justify-content: center;
-      padding: 16px;
-    }
-
-    .modal-overlay.open { display: flex; }
-
-    .modal {
-      background: var(--surface);
-      border-radius: 16px;
-      padding: 24px;
-      width: 100%;
-      max-width: 440px;
-      max-height: 90vh;
-      overflow-y: auto;
-    }
-
-    .modal h2 { font-size: 1.1rem; margin-bottom: 16px; }
-
-    .toast {
-      position: fixed;
-      bottom: 24px;
-      left: 50%;
-      transform: translateX(-50%) translateY(80px);
-      background: var(--text);
-      color: #fff;
-      padding: 10px 20px;
-      border-radius: 10px;
-      font-size: 0.9rem;
-      opacity: 0;
-      transition: transform 0.25s, opacity 0.25s;
-      z-index: 300;
-      pointer-events: none;
-    }
-
-    .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
-
-    .quick-actions { display: flex; gap: 6px; flex-wrap: wrap; }
-
-    .quick-btn {
-      flex: 1;
-      min-width: 80px;
-      padding: 9px;
-      border: 1px solid var(--border);
-      background: var(--surface);
-      border-radius: 9px;
-      font-size: 0.82rem;
-      font-weight: 600;
-      cursor: pointer;
-    }
-
-    .quick-btn:hover { border-color: var(--primary); color: var(--primary); }
-
-    @media (max-width: 860px) {
-      html, body { overflow: auto; height: auto; }
-      .app-shell { flex-direction: column; height: auto; overflow: visible; }
-      .sidebar {
-        width: 100%;
-        height: auto;
-        position: static;
-        border-right: none;
-        border-bottom: 1px solid var(--border);
-        overflow: visible;
-      }
-
-      .sidebar-body { overflow: visible; }
-      .sidebar-auth-block { border-top: none; padding-top: 0; }
-      .main { overflow: visible; }
-      .dash-top { grid-template-columns: 1fr; }
-      .dash-bottom { grid-template-columns: 1fr; }
-      #panel-dashboard.active { overflow: visible; height: auto; }
-      .sortable-list, .upcoming-list { overflow: visible; }
-    }
-
-    @media (max-width: 480px) {
-      .form-row { grid-template-columns: 1fr; }
-      .stat-grid { grid-template-columns: 1fr; }
-    }
-
-    .auth-screen {
-      position: fixed;
-      inset: 0;
-      z-index: 500;
-      background: var(--bg);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 16px;
-    }
-
-    .auth-screen[hidden] { display: none !important; }
-
-    .auth-card {
-      width: 100%;
-      max-width: 380px;
-      background: var(--surface);
-      border-radius: 16px;
-      padding: 28px 24px;
-      box-shadow: var(--shadow);
-    }
-
-    .auth-card h1 {
-      font-size: 1.6rem;
-      font-weight: 800;
-      color: var(--primary);
-      margin-bottom: 4px;
-    }
-
-    .auth-card > p {
-      color: var(--text-muted);
-      font-size: 0.88rem;
-      margin-bottom: 20px;
-    }
-
-    .auth-card .form-group { margin-bottom: 12px; }
-
-    .auth-error {
-      color: var(--danger);
-      font-size: 0.82rem;
-      margin-top: 10px;
-      min-height: 1.2em;
-    }
-
-    .auth-go-signup {
-      width: 100%;
-      margin-top: 12px;
-      padding: 10px;
-      border: 1px solid var(--border);
-      border-radius: 9px;
-      background: var(--surface);
-      font-size: 0.88rem;
-      font-weight: 600;
-      cursor: pointer;
-      color: var(--text);
-      font-family: inherit;
-    }
-
-    .auth-go-signup:hover {
-      border-color: var(--primary);
-      color: var(--primary);
-    }
-
-    .auth-back-text {
-      display: block;
-      width: 100%;
-      margin-top: 16px;
-      padding: 0;
-      border: none;
-      background: none;
-      text-align: center;
-      font-size: 0.82rem;
-      color: var(--text-muted);
-      cursor: pointer;
-      font-family: inherit;
-      text-decoration: underline;
-    }
-
-    .auth-back-text:hover { color: var(--primary); }
-
-    .user-email {
-      font-size: 0.72rem;
-      color: var(--text-muted);
-      word-break: break-all;
-      margin-bottom: 6px;
-    }
-
-    #logout-btn { width: 100%; padding: 8px; font-size: 0.82rem; }
-
-    .chat-widget {
-      position: fixed;
-      right: 20px;
-      bottom: 20px;
-      z-index: 260;
-      font-family: inherit;
-    }
-
-    .chat-widget[hidden] { display: none !important; }
-
-    .chat-fab {
-      width: 52px;
-      height: 52px;
-      border: none;
-      border-radius: 50%;
-      background: linear-gradient(135deg, var(--primary), #6b8cff);
-      color: #fff;
-      font-size: 1.35rem;
-      cursor: pointer;
-      box-shadow: 0 4px 16px rgba(79, 110, 247, 0.45);
-      transition: transform 0.2s, box-shadow 0.2s;
-    }
-
-    .chat-fab:hover {
-      transform: scale(1.05);
-      box-shadow: 0 6px 20px rgba(79, 110, 247, 0.55);
-    }
-
-    .chat-panel {
-      position: absolute;
-      right: 0;
-      bottom: 64px;
-      width: 340px;
-      max-width: calc(100vw - 32px);
-      height: 460px;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
-      display: flex;
-      flex-direction: column;
-      overflow: hidden;
-      transform: scale(0.92) translateY(12px);
-      opacity: 0;
-      pointer-events: none;
-      transition: transform 0.22s, opacity 0.22s;
-      transform-origin: bottom right;
-    }
-
-    .chat-panel.open {
-      transform: scale(1) translateY(0);
-      opacity: 1;
-      pointer-events: auto;
-    }
-
-    .chat-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 8px;
-      padding: 12px 14px;
-      background: linear-gradient(135deg, var(--primary), #6b8cff);
-      color: #fff;
-      flex-shrink: 0;
-    }
-
-    .chat-header-actions {
-      display: flex;
-      align-items: center;
-      gap: 4px;
-      flex-shrink: 0;
-    }
-
-    .chat-icon-btn {
-      border: none;
-      background: rgba(255, 255, 255, 0.2);
-      color: #fff;
-      width: 28px;
-      height: 28px;
-      border-radius: 8px;
-      cursor: pointer;
-      font-size: 0.85rem;
-      line-height: 1;
-    }
-
-    .chat-icon-btn:hover { background: rgba(255, 255, 255, 0.35); }
-    .chat-icon-btn.active { background: rgba(255, 255, 255, 0.45); }
-
-    .chat-header-info h2 {
-      font-size: 0.95rem;
-      font-weight: 700;
-      margin-bottom: 2px;
-    }
-
-    .chat-header-info p {
-      font-size: 0.72rem;
-      opacity: 0.9;
-    }
-
-    .chat-close {
-      border: none;
-      background: rgba(255, 255, 255, 0.2);
-      color: #fff;
-      width: 28px;
-      height: 28px;
-      border-radius: 8px;
-      cursor: pointer;
-      font-size: 1rem;
-      line-height: 1;
-    }
-
-    .chat-close:hover { background: rgba(255, 255, 255, 0.35); }
-
-    .chat-tabs {
-      display: flex;
-      gap: 4px;
-      padding: 8px 10px 0;
-      background: var(--surface);
-      border-bottom: 1px solid var(--border);
-      flex-shrink: 0;
-    }
-
-    .chat-tab {
-      flex: 1;
-      border: none;
-      background: transparent;
-      padding: 8px 6px;
-      font-size: 0.78rem;
-      font-weight: 600;
-      color: var(--text-muted);
-      cursor: pointer;
-      border-bottom: 2px solid transparent;
-      font-family: inherit;
-    }
-
-    .chat-tab.active {
-      color: var(--primary);
-      border-bottom-color: var(--primary);
-    }
-
-    .chat-view {
-      display: none;
-      flex: 1;
-      min-height: 0;
-      flex-direction: column;
-    }
-
-    .chat-view.active { display: flex; }
-
-    .chat-session-list {
-      flex: 1;
-      min-height: 0;
-      overflow-y: auto;
-      padding: 10px;
-      background: var(--bg);
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-    }
-
-    .chat-session-item {
-      padding: 10px 12px;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      cursor: pointer;
-      text-align: left;
-      font-family: inherit;
-      color: var(--text);
-    }
-
-    .chat-session-item:hover,
-    .chat-session-item.active {
-      border-color: var(--primary);
-      background: var(--today);
-    }
-
-    .chat-session-item .session-title {
-      font-size: 0.84rem;
-      font-weight: 600;
-      margin-bottom: 3px;
-    }
-
-    .chat-session-item .session-meta {
-      font-size: 0.72rem;
-      color: var(--text-muted);
-    }
-
-    .chat-session-empty {
-      padding: 24px 12px;
-      text-align: center;
-      font-size: 0.82rem;
-      color: var(--text-muted);
-    }
-
-    .chat-system-box {
-      flex: 1;
-      min-height: 0;
-      overflow-y: auto;
-      padding: 14px;
-      background: var(--bg);
-      font-size: 0.8rem;
-      line-height: 1.55;
-      white-space: pre-wrap;
-      word-break: break-word;
-      color: var(--text);
-    }
-
-    .chat-system-label {
-      font-size: 0.72rem;
-      font-weight: 700;
-      color: var(--text-muted);
-      text-transform: uppercase;
-      letter-spacing: 0.04em;
-      margin-bottom: 8px;
-    }
-
-    .chat-messages {
-      flex: 1;
-      min-height: 0;
-      overflow-y: auto;
-      padding: 14px;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      background: var(--bg);
-    }
-
-    .chat-msg {
-      max-width: 88%;
-      padding: 10px 12px;
-      border-radius: 12px;
-      font-size: 0.84rem;
-      line-height: 1.45;
-      white-space: pre-wrap;
-      word-break: break-word;
-    }
-
-    .chat-msg.bot {
-      align-self: flex-start;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-bottom-left-radius: 4px;
-    }
-
-    .chat-msg.user {
-      align-self: flex-end;
-      background: var(--primary);
-      color: #fff;
-      border-bottom-right-radius: 4px;
-    }
-
-    .chat-msg.typing {
-      color: var(--text-muted);
-      font-style: italic;
-    }
-
-    .chat-suggestions {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px;
-      padding: 0 14px 10px;
-      background: var(--bg);
-      flex-shrink: 0;
-    }
-
-    .chat-chip {
-      border: 1px solid var(--border);
-      background: var(--surface);
-      border-radius: 999px;
-      padding: 5px 10px;
-      font-size: 0.72rem;
-      font-weight: 600;
-      color: var(--text);
-      cursor: pointer;
-      font-family: inherit;
-    }
-
-    .chat-chip:hover {
-      border-color: var(--primary);
-      color: var(--primary);
-    }
-
-    .chat-input-row {
-      display: flex;
-      gap: 8px;
-      padding: 12px 14px;
-      border-top: 1px solid var(--border);
-      background: var(--surface);
-      flex-shrink: 0;
-    }
-
-    .chat-input {
-      flex: 1;
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 9px 12px;
-      font-size: 0.85rem;
-      font-family: inherit;
-      background: var(--bg);
-      color: var(--text);
-    }
-
-    .chat-input:focus {
-      outline: none;
-      border-color: var(--primary);
-    }
-
-    .chat-send {
-      border: none;
-      background: var(--primary);
-      color: #fff;
-      border-radius: 10px;
-      padding: 0 14px;
-      font-size: 0.85rem;
-      font-weight: 600;
-      cursor: pointer;
-      font-family: inherit;
-    }
-
-    .chat-send:hover { background: var(--primary-hover); }
-
-    @media (max-width: 480px) {
-      .chat-widget { right: 12px; bottom: 12px; }
-      .chat-panel { height: min(460px, calc(100vh - 100px)); }
-    }
-  </style>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.8/dist/umd/supabase.min.js"></script>
+  <link rel="stylesheet" href="css/app.css">
+  <link rel="stylesheet" href="css/chatbot.css">
 </head>
 <body>
   <div class="auth-screen" id="auth-screen">
@@ -1593,22 +48,86 @@
         <p class="auth-error" id="signup-error"></p>
       </form>
     </div>
+
+    <div class="auth-card" id="auth-checking-page" hidden>
+      <h1>PlanDay</h1>
+      <div class="auth-checking-spinner" aria-hidden="true"></div>
+      <p class="auth-checking-msg" id="auth-checking-message">사용자 정보를 확인하는 중...</p>
+      <p class="auth-error" id="auth-checking-error"></p>
+      <button type="button" class="submit-btn" id="auth-checking-retry" hidden>다시 시도</button>
+      <button type="button" class="auth-back-text" id="auth-checking-back" hidden>로그인 화면으로</button>
+    </div>
+  </div>
+
+  <div class="onboarding-screen" id="onboarding-screen" hidden>
+    <div class="auth-card onboarding-card">
+      <h1>PlanDay</h1>
+      <p>서비스 이용을 위해 프로필 입력과 약관 동의가 필요합니다.</p>
+      <form id="onboarding-form">
+        <div class="form-group">
+          <label for="onboarding-nickname">닉네임</label>
+          <input type="text" id="onboarding-nickname" required maxlength="30" placeholder="표시 이름" autocomplete="nickname">
+        </div>
+        <div class="form-group">
+          <label for="onboarding-phone">전화번호</label>
+          <input type="tel" id="onboarding-phone" required placeholder="010-1234-5678" autocomplete="tel">
+        </div>
+
+        <div class="policy-block">
+          <label class="policy-check">
+            <input type="checkbox" id="onboarding-terms">
+            <span>서비스 이용약관에 동의합니다 (필수)</span>
+          </label>
+          <details class="policy-details">
+            <summary>약관 전문 보기</summary>
+            <div class="policy-content" id="policy-terms-content">불러오는 중...</div>
+          </details>
+        </div>
+
+        <div class="policy-block">
+          <label class="policy-check">
+            <input type="checkbox" id="onboarding-privacy">
+            <span>개인정보 처리방침에 동의합니다 (필수)</span>
+          </label>
+          <details class="policy-details">
+            <summary>개인정보 처리방침 전문 보기</summary>
+            <div class="policy-content" id="policy-privacy-content">불러오는 중...</div>
+          </details>
+        </div>
+
+        <button type="submit" class="submit-btn">서비스 시작하기</button>
+        <p class="auth-error" id="onboarding-error"></p>
+      </form>
+    </div>
   </div>
 
   <div class="app-shell" id="app-shell" hidden>
-    <aside class="sidebar">
-      <div class="sidebar-body">
-        <div class="sidebar-top">
-          <div class="sidebar-brand">
-            <h1>PlanDay</h1>
-            <p>스마트 일정 관리</p>
-          </div>
-          <button type="button" class="theme-btn" id="theme-btn" title="테마 변경">☀️</button>
+    <header class="app-header" id="app-header">
+      <div class="app-header-left">
+        <button type="button" class="header-menu-btn" id="sidebar-toggle" aria-label="메뉴 열기" aria-expanded="false">☰</button>
+        <div class="app-header-brand">
+          <h1 class="app-header-title">PlanDay</h1>
+          <p class="app-header-subtitle">스마트 일정 관리</p>
         </div>
+      </div>
+      <div class="app-header-right">
+        <button type="button" class="theme-btn" id="theme-btn" title="테마 변경">☀️</button>
+        <nav class="app-header-nav" id="app-header-nav" aria-label="계정" hidden>
+          <button type="button" class="header-profile-btn" id="profile-btn" title="내 프로필">
+            <span class="header-profile-icon" aria-hidden="true">👤</span>
+            <span class="header-profile-name" id="header-profile-name">프로필</span>
+          </button>
+          <button type="button" class="header-logout-btn" id="header-logout-btn">로그아웃</button>
+        </nav>
+      </div>
+    </header>
 
+    <div class="app-body">
+    <aside class="sidebar" id="app-sidebar">
+      <div class="sidebar-body">
         <div class="sidebar-block">
           <h3>검색</h3>
-          <input type="search" class="search-box" id="search-input" placeholder="일정 검색...">
+          <input type="search" class="search-box" id="search-input" placeholder="일정 검색..." autocomplete="off" name="schedule-search">
           <div class="search-results" id="search-results"></div>
         </div>
 
@@ -1640,12 +159,6 @@
             <div class="legend-item"><span class="legend-dot" style="background:var(--cat-other)"></span>기타</div>
           </div>
         </div>
-      </div>
-
-      <div class="sidebar-block sidebar-auth-block" id="sidebar-auth" hidden>
-        <h3>계정</h3>
-        <p class="user-email" id="user-email"></p>
-        <button type="button" class="quick-btn" id="logout-btn">로그아웃</button>
       </div>
     </aside>
 
@@ -1778,6 +291,85 @@
         </form>
       </section>
     </main>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="profile-modal">
+    <div class="modal modal-profile" role="dialog" aria-labelledby="profile-modal-title">
+      <div class="modal-profile-header">
+        <h2 id="profile-modal-title">내 프로필</h2>
+        <button type="button" class="modal-close-btn" id="profile-modal-close" aria-label="닫기">×</button>
+      </div>
+
+      <form id="profile-form">
+        <section class="profile-section">
+          <h3>기본 정보</h3>
+          <div class="form-group">
+            <label for="profile-email">이메일</label>
+            <input type="email" id="profile-email" readonly disabled>
+          </div>
+          <div class="form-group">
+            <label for="profile-nickname">이름 (닉네임)</label>
+            <input type="text" id="profile-nickname" maxlength="30" required autocomplete="nickname">
+          </div>
+          <div class="form-group">
+            <label for="profile-phone">전화번호</label>
+            <input type="tel" id="profile-phone" required autocomplete="tel" placeholder="010-1234-5678">
+          </div>
+          <dl class="profile-meta">
+            <div class="profile-meta-row">
+              <dt>가입일</dt>
+              <dd id="profile-created-at">—</dd>
+            </div>
+            <div class="profile-meta-row">
+              <dt>프로필 수정일</dt>
+              <dd id="profile-updated-at">—</dd>
+            </div>
+          </dl>
+        </section>
+
+        <section class="profile-section">
+          <h3>약관 · 정책 동의 내역</h3>
+          <div class="profile-consent-table-wrap">
+            <table class="profile-consent-table">
+              <thead>
+                <tr>
+                  <th>정책</th>
+                  <th>버전</th>
+                  <th>동의일</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody id="profile-consent-body">
+                <tr><td colspan="4" class="profile-empty-cell">불러오는 중...</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="profile-policy-links">
+            <button type="button" class="link-btn" id="profile-view-terms">서비스 이용약관 보기</button>
+            <button type="button" class="link-btn" id="profile-view-privacy">개인정보 처리방침 보기</button>
+          </div>
+        </section>
+
+        <p class="auth-error" id="profile-error"></p>
+        <div class="form-actions profile-form-actions">
+          <button type="button" class="cancel-btn" id="profile-cancel">취소</button>
+          <button type="submit" class="submit-btn" id="profile-save-btn">저장</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="policy-detail-modal">
+    <div class="modal modal-policy" role="dialog" aria-labelledby="policy-detail-title">
+      <div class="modal-profile-header">
+        <h2 id="policy-detail-title">정책</h2>
+        <button type="button" class="modal-close-btn" id="policy-detail-close" aria-label="닫기">×</button>
+      </div>
+      <p class="policy-detail-meta" id="policy-detail-meta"></p>
+      <div class="policy-content policy-detail-content" id="policy-detail-content"></div>
+      <button type="button" class="submit-btn policy-detail-close-btn" id="policy-detail-ok">닫기</button>
+    </div>
   </div>
 
   <div class="modal-overlay" id="cal-day-modal">
@@ -1915,46 +507,137 @@
       <div class="chat-tabs">
         <button type="button" class="chat-tab active" data-chat-tab="messages">대화</button>
         <button type="button" class="chat-tab" data-chat-tab="history">기록</button>
-        <button type="button" class="chat-tab" data-chat-tab="system">시스템</button>
+        <button type="button" class="chat-tab" data-chat-tab="usage">사용량</button>
+        <button type="button" class="chat-tab" data-chat-tab="system">AI설정</button>
       </div>
       <div class="chat-view active" id="chat-view-messages">
+        <div class="chat-session-tone-bar" id="chat-session-tone-bar" hidden></div>
+        <div class="chat-gpt-mode-bar" id="chat-gpt-mode-bar" hidden></div>
         <div class="chat-messages" id="chat-messages"></div>
         <div class="chat-suggestions" id="chat-suggestions"></div>
         <form class="chat-input-row" id="chat-form">
-          <input type="text" class="chat-input" id="chat-input" placeholder="메시지를 입력하세요..." autocomplete="off">
+          <input type="text" class="chat-input" id="chat-input" placeholder="메시지를 입력하세요..." autocomplete="off" maxlength="2000">
           <button type="submit" class="chat-send">전송</button>
         </form>
       </div>
       <div class="chat-view" id="chat-view-history">
         <div class="chat-session-list" id="chat-session-list"></div>
       </div>
+      <div class="chat-view" id="chat-view-usage">
+        <div class="chat-usage-scroll">
+          <div class="usage-stats-panel" id="usage-stats-panel">
+            <p class="usage-loading">사용량 불러오는 중...</p>
+          </div>
+        </div>
+      </div>
       <div class="chat-view" id="chat-view-system">
-        <div class="chat-system-box" id="chat-system-box"></div>
+        <div class="chat-system-scroll">
+          <div class="chat-api-key-section">
+            <label class="checkbox-row chat-gpt-mode-toggle">
+              <input type="checkbox" id="chat-gpt-mode-enabled">
+              AI 모드 사용 (Gemini API Key · 무료 할당량)
+            </label>
+            <p class="chat-api-key-hint chat-rule-mode-hint" id="chat-rule-mode-hint">
+              현재 <strong>규칙 기반 모드</strong> — 일정·검색·간단한 대화 가능. AI(Gemini)는 나중에 켤 수 있어요.
+            </p>
+            <label for="chat-api-key-input">Gemini API Key</label>
+            <div class="chat-api-key-row">
+              <input type="password" class="chat-api-key-input" id="chat-api-key-input" placeholder="AIza..." autocomplete="off">
+              <button type="button" class="chat-api-key-save" id="chat-api-key-save">저장</button>
+            </div>
+            <p class="chat-api-key-hint">
+              <strong>AI 모드:</strong> Gemini API Key 저장 시 자유로운 대화 + 일정 조회·추가가 가능합니다.<br>
+              키 발급: <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener noreferrer">Google AI Studio API Keys</a> (무료 할당량 제공)
+            </p>
+            <p class="chat-api-key-hint chat-api-key-deploy chat-dev-only" hidden>
+              <strong>⚠️ 필수:</strong> AI 모드는 브라우저 CORS 때문에 Supabase Edge Function <code>gemini-chat</code> 배포가 필요합니다.<br>
+              CLI: <code>supabase functions deploy gemini-chat</code> (Verify JWT <strong>ON</strong>)<br>
+              코드 위치: <code>supabase/functions/gemini-chat/index.ts</code>
+            </p>
+            <p class="chat-api-key-hint">키는 이 브라우저(localStorage)에만 저장됩니다. GitHub에 올라가지 않습니다.</p>
+            <p class="chat-api-key-status" id="chat-api-key-status" hidden></p>
+          </div>
+          <div class="chat-tone-section">
+            <label for="chat-tone-select">AI 톤 (말투 · 역할)</label>
+            <select class="chat-tone-select" id="chat-tone-select">
+              <option value="friendly">친근한 선생님</option>
+              <option value="strict">엄격한 선생님</option>
+              <option value="business">비즈니스 전문가</option>
+              <option value="casual">캐주얼 친구</option>
+              <option value="custom">직접 작성</option>
+            </select>
+            <textarea class="chat-custom-prompt" id="chat-custom-prompt" placeholder="직접 시스템 프롬프트를 입력하세요..." hidden></textarea>
+            <button type="button" class="chat-save-current-prompt-btn" id="chat-save-current-prompt-btn" hidden>💾 현재 프롬프트를 내 목록에 저장</button>
+            <p class="chat-tone-lock-hint" id="chat-tone-lock-hint" hidden>대화 중에는 톤을 변경할 수 없습니다. ＋ 새 대화를 시작하면 변경됩니다.</p>
+            <p class="chat-tone-preview-label">현재 시스템 프롬프트</p>
+            <div class="chat-tone-preview" id="chat-tone-preview"></div>
+          </div>
+          <div class="chat-user-prompts-section">
+            <div class="chat-user-prompts-header">
+              <label>나만의 프롬프트</label>
+              <button type="button" class="chat-prompt-add-btn" id="chat-prompt-add-btn">＋ 추가</button>
+            </div>
+            <input type="search" class="chat-prompt-search" id="chat-prompt-search" placeholder="이름·설명 검색...">
+            <div class="chat-prompt-form" id="chat-prompt-form" hidden>
+              <input type="hidden" id="chat-prompt-edit-id">
+              <label for="chat-prompt-name">이름</label>
+              <input type="text" id="chat-prompt-name" placeholder="예: 나만의 음악 친구" maxlength="80">
+              <label for="chat-prompt-desc">설명</label>
+              <input type="text" id="chat-prompt-desc" placeholder="간단한 설명" maxlength="200">
+              <label for="chat-prompt-type">유형</label>
+              <select id="chat-prompt-type">
+                <option value="custom">커스텀</option>
+                <option value="roleplay">역할 놀이</option>
+                <option value="coach">코치/멘토</option>
+                <option value="study">학습/연습</option>
+              </select>
+              <label for="chat-prompt-content">프롬프트 내용</label>
+              <textarea id="chat-prompt-content" placeholder="AI에게 전달할 말투·역할 지시를 작성하세요..."></textarea>
+              <label class="checkbox-row" style="margin-top:8px">
+                <input type="checkbox" id="chat-prompt-favorite"> 즐겨찾기
+              </label>
+              <label class="checkbox-row">
+                <input type="checkbox" id="chat-prompt-default"> 기본 프롬프트로 설정
+              </label>
+              <div class="chat-prompt-form-actions">
+                <button type="button" id="chat-prompt-cancel-btn">취소</button>
+                <button type="button" class="chat-prompt-save-btn" id="chat-prompt-save-btn">저장</button>
+              </div>
+            </div>
+            <div class="chat-prompt-list" id="chat-prompt-list"></div>
+            <p class="chat-prompt-empty" id="chat-prompt-empty" hidden>저장된 프롬프트가 없습니다.<br>＋ 추가로 나만의 대화 파트너를 만들어 보세요.</p>
+            <p class="chat-prompt-db-hint" id="chat-prompt-db-hint" hidden>user_prompts 테이블이 없습니다.<br>Supabase에서 database/create_user_prompts.sql을 실행해 주세요.</p>
+          </div>
+          <div class="chat-system-box chat-dev-only" id="chat-system-box" hidden></div>
+        </div>
       </div>
     </div>
     <button type="button" class="chat-fab" id="chat-fab" aria-label="챗봇 열기">💬</button>
   </div>
 
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.4/dist/umd/supabase.min.js"></script>
+  <script src="js/supabase-config.js"></script>
+  <script src="js/planday-security.js"></script>
+  <script src="js/usage-stats.js"></script>
+  <script src="js/chat-rules.js"></script>
+  <script src="js/planday-chat.js"></script>
+  <script src="js/events-store.js"></script>
+  <script src="js/schedule-ui.js"></script>
+  <script src="js/auth-onboarding.js"></script>
+  <script src="js/profile.js"></script>
+  <script src="js/admin-milestone-check.js"></script>
   <script>
-    // Supabase 설정 — Project Settings → API에서 복사
-    const SUPABASE_URL = 'https://gjltxsghroodhethquzr.supabase.co';
-    const SUPABASE_ANON_KEY = 'sb_publishable_BkioQUxZKUYHRqFXmWwHgQ_SLiaVKW0';
+    // Supabase — js/supabase-config.js (Git 제외, example 참고)
+    const SUPABASE_URL = (window.PLANDAY_SUPABASE?.url || '').trim();
+    const SUPABASE_ANON_KEY = (window.PLANDAY_SUPABASE?.anonKey || '').trim();
     const DEMO_ACCOUNT_EMAIL = 'demo@planday.app';
 
-    const STORAGE_KEY = "planDayEvents";
-    const SEED_KEY = "planDaySeeded_v7";
     const ORDER_KEY_PREFIX = "planDayOrder_";
     const THEME_KEY = "planDayTheme";
     const HOME_PAGE_SIZE = 6;
     const LIST_PAGE_SIZE = 5;
     const DDAY_PAGE_SIZE = 3;
 
-    let todayPage = 0;
-    let upcomingPage = 0;
-    let listPage = 0;
-    let ddayPage = 0;
-    const listSelectedIds = new Set();
-    let listDeleteMode = false;
 
     const GREETINGS = [
       "오늘도 계획대로, 차분하게 시작해요",
@@ -1971,228 +654,43 @@
 
     let events = [];
     let supabase = null;
+    let initAppDone = false;
     let currentUser = null;
-    let viewYear = new Date().getFullYear();
-    let viewMonth = new Date().getMonth();
-    let selectedDate = formatDate(new Date());
-    let eventModalContext = null;
+    let userProfile = null;
+    let planDayAuth = null;
+    let planDayProfile = null;
+    let planDayUsageStats = null;
+    let planDaySecurity = null;
+    let eventStore = null;
+
+    let normalizeEvent;
+    let saveEvents;
+    let loadEventsLocal;
+    let loadEventsFromSupabase;
+    let seedSampleData;
+    let seedCloudSampleIfEmpty;
+    let scheduleUi = null;
+
+    let renderAll;
+    let getEventsForDate;
+    let getAllOccurrences;
+    let getWeekRange;
+    let getDday;
+    let getDdayLabel;
+    let formatDisplayDate;
+    let getRelativeLabel;
+    let pushNewEvent;
+    let escapeHtml;
     const randomGreeting = GREETINGS[Math.floor(Math.random() * GREETINGS.length)];
 
     const $ = id => document.getElementById(id);
-
-    function normalizeEvent(e) {
-      return {
-        id: e.id || crypto.randomUUID(),
-        title: e.title || "",
-        date: e.date,
-        time: e.time || "09:00",
-        memo: e.memo || "",
-        category: e.category || "other",
-        important: !!e.important,
-        dday: !!e.dday,
-        repeat: e.repeat || "none",
-        doneDates: e.doneDates || (e.done ? [e.date] : [])
-      };
-    }
 
     function isSupabaseConfigured() {
       return SUPABASE_URL.trim() !== "" && SUPABASE_ANON_KEY.trim() !== "";
     }
 
-    function loadEventsLocal() {
-      try {
-        const data = localStorage.getItem(STORAGE_KEY);
-        return data ? JSON.parse(data).map(normalizeEvent) : [];
-      } catch { return []; }
-    }
-
-    function rowToEvent(row) {
-      return normalizeEvent({
-        id: row.id,
-        title: row.title,
-        date: row.date,
-        time: row.time,
-        memo: row.memo,
-        category: row.category,
-        important: row.important,
-        dday: row.dday,
-        repeat: row.repeat_type ?? row.repeat ?? "none",
-        doneDates: row.done_dates || []
-      });
-    }
-
-    async function loadEventsFromSupabase() {
-      if (!supabase || !currentUser) return [];
-      const { data, error } = await supabase
-        .from("events")
-        .select("*")
-        .order("date")
-        .order("time");
-      if (error) {
-        console.error(error);
-        const msg = error.message?.includes("does not exist") || error.code === "42P01"
-          ? "events 테이블이 없습니다. Supabase SQL Editor에서 supabase-setup.sql을 실행하세요."
-          : `일정 불러오기 실패: ${error.message}`;
-        showToast(msg);
-        return [];
-      }
-      return (data || []).map(rowToEvent);
-    }
-
-    async function saveEvents() {
-      if (!isSupabaseConfigured() || !currentUser || !supabase) {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(events));
-        return;
-      }
-
-      const userId = currentUser.id;
-      const rows = events.map(e => ({
-        id: e.id,
-        user_id: userId,
-        title: e.title,
-        date: e.date,
-        time: e.time,
-        memo: e.memo,
-        category: e.category,
-        important: e.important,
-        dday: e.dday,
-        repeat_type: e.repeat,
-        done_dates: e.doneDates
-      }));
-
-      const { error: upsertError } = await supabase.from("events").upsert(rows);
-      if (upsertError) {
-        console.error(upsertError);
-        showToast(`저장 실패: ${upsertError.message}`);
-        return false;
-      }
-
-      const { data: existing, error: fetchError } = await supabase
-        .from("events")
-        .select("id")
-        .eq("user_id", userId);
-      if (!fetchError && existing) {
-        const currentIds = new Set(events.map(e => e.id));
-        const toDelete = existing.filter(r => !currentIds.has(r.id)).map(r => r.id);
-        if (toDelete.length) {
-          await supabase.from("events").delete().in("id", toDelete);
-        }
-      }
-      return true;
-    }
-
-    async function migrateLocalEventsIfAny() {
-      const local = loadEventsLocal();
-      if (!local.length) return;
-      events = local;
-      await saveEvents();
-      localStorage.removeItem(STORAGE_KEY);
-      showToast("기존 일정을 클라우드로 옮겼습니다");
-    }
-
     function isDemoAccount(user) {
       return user?.email?.toLowerCase() === DEMO_ACCOUNT_EMAIL.toLowerCase();
-    }
-
-    function showAuthLoginPage() {
-      $("auth-login-page").hidden = false;
-      $("auth-signup-page").hidden = true;
-    }
-
-    function showAuthSignupPage() {
-      $("auth-login-page").hidden = true;
-      $("auth-signup-page").hidden = false;
-      $("signup-error").textContent = "";
-    }
-
-    function showAuthScreen() {
-      showAuthLoginPage();
-      $("auth-screen").hidden = false;
-      $("app-shell").hidden = true;
-      $("login-error").textContent = "";
-      setChatWidgetVisible(false);
-      closeChatPanel();
-    }
-
-    function hideAuthScreen() {
-      $("auth-screen").hidden = true;
-      $("app-shell").hidden = false;
-      setChatWidgetVisible(true);
-    }
-
-    function updateUserUi() {
-      if (currentUser && isSupabaseConfigured()) {
-        $("sidebar-auth").hidden = false;
-        $("user-email").textContent = currentUser.email || "로그인됨";
-      } else {
-        $("sidebar-auth").hidden = true;
-      }
-    }
-
-    async function seedCloudSampleIfEmpty() {
-      if (!currentUser || !isDemoAccount(currentUser)) return;
-      if (events.length > 0) return;
-      const key = `planDayCloudSeeded_${currentUser.id}`;
-      if (localStorage.getItem(key)) return;
-      events = createSampleEvents();
-      const ok = await saveEvents();
-      if (ok) {
-        localStorage.setItem(key, "1");
-        showToast("데모 일정을 불러왔습니다");
-      }
-    }
-
-    async function onLogin(user) {
-      currentUser = user;
-      hideAuthScreen();
-      updateUserUi();
-      events = await loadEventsFromSupabase();
-      if (events.length === 0 && isDemoAccount(user)) {
-        await seedCloudSampleIfEmpty();
-      }
-      await initChatForUser();
-      renderAll();
-    }
-
-    async function onLogout() {
-      if (supabase) await supabase.auth.signOut();
-      currentUser = null;
-      events = [];
-      resetChatForUser();
-      showAuthScreen();
-    }
-
-    async function initSupabase() {
-      try {
-        if (!window.supabase) {
-          throw new Error("Supabase SDK 로드 실패. 인터넷 연결을 확인하세요.");
-        }
-        supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-        const { data: { session }, error } = await supabase.auth.getSession();
-        if (error) throw error;
-        if (session?.user) await onLogin(session.user);
-        else {
-          $("auth-subtitle").textContent = "로그인하고 일정을 클라우드에 저장하세요";
-          showAuthScreen();
-        }
-
-        supabase.auth.onAuthStateChange(async (_event, session) => {
-          if (session?.user) {
-            if (!currentUser || currentUser.id !== session.user.id) {
-              await onLogin(session.user);
-            }
-          } else if (currentUser) {
-            currentUser = null;
-            events = [];
-            showAuthScreen();
-          }
-        });
-      } catch (err) {
-        console.error(err);
-        $("login-error").style.color = "var(--danger)";
-        $("login-error").textContent = err.message || "Supabase 연결 실패";
-        showAuthScreen();
-      }
     }
 
     async function initApp() {
@@ -2202,18 +700,235 @@
 
       if (isSupabaseConfigured()) {
         $("app-shell").hidden = true;
-        $("auth-screen").hidden = false;
-        $("auth-subtitle").textContent = "Supabase 연결 중...";
-        await initSupabase();
+        $("onboarding-screen").hidden = true;
+        if (!supabase) {
+          planDayAuth.showSessionCheckScreen("Supabase 연결 중...");
+          await planDayAuth.initSupabase();
+        }
         return;
       }
 
       $("auth-screen").hidden = true;
       $("app-shell").hidden = false;
-      setChatWidgetVisible(true);
+      window.planDayChat?.setWidgetVisible(true);
       events = loadEventsLocal();
       seedSampleData();
       renderAll();
+    }
+
+    function loadChatbotModule() {
+      if (window.planDayChat) return;
+      if (!window.createPlanDayChatbot) {
+        console.error("planday-chat.js 로드 실패");
+        return;
+      }
+      window.planDayChat = window.createPlanDayChatbot({
+        getSupabase: () => supabase,
+        getCurrentUser: () => currentUser,
+        getEvents: () => events,
+        $,
+        showToast,
+        escapeHtml,
+        formatDate,
+        addDays,
+        formatDisplayDate,
+        getRelativeLabel,
+        getDdayLabel,
+        getEventsForDate,
+        getAllOccurrences,
+        getFutureOccurrences,
+        getWeekRange,
+        getDday,
+        pushNewEvent,
+        renderAll,
+        CATEGORY_LABELS,
+        switchTab,
+        toggleDone,
+        deleteEventSilent,
+        updateEventById,
+        isDone,
+        openCalDayModal,
+        getTodayCompletionStats,
+        getNextOccurrence,
+        toggleTheme: (mode) => {
+          if (mode === "dark") {
+            document.documentElement.setAttribute("data-theme", "dark");
+            localStorage.setItem(THEME_KEY, "dark");
+            $("theme-btn").textContent = "🌙";
+            return;
+          }
+          if (mode === "light") {
+            document.documentElement.setAttribute("data-theme", "light");
+            localStorage.setItem(THEME_KEY, "light");
+            $("theme-btn").textContent = "☀️";
+            return;
+          }
+          const dark = document.documentElement.getAttribute("data-theme") !== "dark";
+          document.documentElement.setAttribute("data-theme", dark ? "dark" : "light");
+          localStorage.setItem(THEME_KEY, dark ? "dark" : "light");
+          $("theme-btn").textContent = dark ? "🌙" : "☀️";
+        },
+        recordApiUsage: (opts) => planDayUsageStats?.recordApiUsage(opts),
+        buildMessageUsageMeta: (model, usage) => planDayUsageStats?.buildMessageUsageMeta(model, usage),
+        renderUsageStatsPanel: () => planDayUsageStats?.renderUsageStatsPanel(),
+        planDaySecurity: () => planDaySecurity
+      });
+      window.planDayChat.setupEvents();
+    }
+
+    async function bootstrapPlanDay() {
+      initPlanDayEventsStore();
+      initPlanDayScheduleUi();
+      initPlanDaySecurity();
+      initPlanDayUsageStats();
+      loadChatbotModule();
+      initPlanDayAuth();
+      initPlanDayProfile();
+      try {
+        await initApp();
+        initAppDone = true;
+      } catch (err) {
+        initAppDone = true;
+        console.error(err);
+        if (!$("login-error").textContent) {
+          $("login-error").style.color = "var(--danger)";
+          $("login-error").textContent = err.message || "앱 초기화 실패. 페이지를 새로고침해 주세요.";
+        }
+        showAuthScreen();
+      }
+    }
+
+    function initPlanDayEventsStore() {
+      eventStore = window.createPlanDayEventsStore({
+        getEvents: () => events,
+        setEvents: (v) => { events = v; },
+        getSupabase: () => supabase,
+        getCurrentUser: () => currentUser,
+        isSupabaseConfigured,
+        isDemoAccount,
+        showToast,
+        addDays
+      });
+      ({
+        normalizeEvent,
+        saveEvents,
+        loadEventsLocal,
+        loadEventsFromSupabase,
+        seedSampleData,
+        seedCloudSampleIfEmpty
+      } = eventStore);
+    }
+
+    function initPlanDayAuth() {
+      planDayAuth = window.createPlanDayAuth({
+        $,
+        SUPABASE_URL,
+        SUPABASE_ANON_KEY,
+        getSupabase: () => supabase,
+        setSupabase: (v) => {
+          supabase = v;
+          window.__planDaySupabase = v;
+        },
+        getCurrentUser: () => currentUser,
+        setCurrentUser: (v) => { currentUser = v; },
+        getUserProfile: () => userProfile,
+        setUserProfile: (v) => { userProfile = v; },
+        getEvents: () => events,
+        setEvents: (v) => { events = v; },
+        getInitAppDone: () => initAppDone,
+        isSupabaseConfigured,
+        isDemoAccount,
+        showToast,
+        loadEventsFromSupabase,
+        seedCloudSampleIfEmpty,
+        renderAll,
+        getChat: () => window.planDayChat
+      });
+      planDayAuth.setupEvents();
+    }
+
+    function initPlanDayProfile() {
+      if (!window.createPlanDayProfile) return;
+      planDayProfile = window.createPlanDayProfile({
+        $,
+        getSupabase: () => supabase,
+        getCurrentUser: () => currentUser,
+        getUserProfile: () => userProfile,
+        setUserProfile: (v) => { userProfile = v; },
+        showToast,
+        escapeHtml,
+        loadUserProfile: (...args) => planDayAuth.loadUserProfile(...args),
+        loadUserConsents: (...args) => planDayAuth.loadUserConsents(...args),
+        loadActivePolicies: (...args) => planDayAuth.loadActivePolicies(...args),
+        isValidPhone: (...args) => planDayAuth.isValidPhone(...args),
+        updateUserUi: () => planDayAuth.updateUserUi(),
+        userFacingError: (err, fallback) =>
+          planDaySecurity?.userFacingError(err, fallback) || (err?.message || fallback)
+      });
+      planDayProfile.setupEvents();
+    }
+
+    function initPlanDaySecurity() {
+      if (!window.createPlanDaySecurity) return;
+      planDaySecurity = window.createPlanDaySecurity({
+        getSupabase: () => supabase,
+        getCurrentUser: () => currentUser
+      });
+    }
+
+    function initPlanDayUsageStats() {
+      if (!window.createPlanDayUsageStats) return;
+      planDayUsageStats = window.createPlanDayUsageStats({
+        $,
+        getSupabase: () => supabase,
+        getCurrentUser: () => currentUser,
+        escapeHtml
+      });
+    }
+
+    function initPlanDayScheduleUi() {
+      scheduleUi = window.createPlanDayScheduleUi({
+        $,
+        getEvents: () => events,
+        setEvents: (v) => { events = v; },
+        normalizeEvent,
+        saveEvents,
+        formatDate,
+        addDays,
+        showToast,
+        CATEGORY_LABELS,
+        randomGreeting,
+        HOME_PAGE_SIZE,
+        LIST_PAGE_SIZE,
+        DDAY_PAGE_SIZE,
+        ORDER_KEY_PREFIX
+      });
+      ({
+        renderAll,
+        getEventsForDate,
+        getAllOccurrences,
+        getFutureOccurrences,
+        getWeekRange,
+        getDday,
+        getDdayLabel,
+        formatDisplayDate,
+        getRelativeLabel,
+        pushNewEvent,
+        escapeHtml,
+        switchTab,
+        toggleDone,
+        deleteEventSilent,
+        updateEventById,
+        isDone,
+        openCalDayModal,
+        getTodayCompletionStats,
+        getNextOccurrence
+      } = scheduleUi);
+      scheduleUi.setupEvents();
+    }
+
+    function showAuthScreen() {
+      planDayAuth?.showAuthScreen();
     }
 
     function formatDate(date) {
@@ -2229,54 +944,10 @@
       return formatDate(d);
     }
 
-    function getWeekday(dateStr) {
-      const [y, m, d] = dateStr.split("-").map(Number);
-      return new Date(y, m - 1, d).getDay();
-    }
-
-    function eventOccursOn(event, dateStr) {
-      if (event.repeat === "weekly") {
-        return getWeekday(event.date) === getWeekday(dateStr) && dateStr >= event.date;
-      }
-      return event.date === dateStr;
-    }
-
-    function getOccurrenceKey(event, dateStr) {
-      return `${event.id}_${dateStr}`;
-    }
-
-    function isDone(event, dateStr) {
-      return (event.doneDates || []).includes(dateStr);
-    }
-
-    function isUpcomingOnDate(event, dateStr) {
-      const todayStr = formatDate(new Date());
-      if (dateStr > todayStr) return true;
-      if (dateStr < todayStr) return false;
-      const [h, min] = event.time.split(":").map(Number);
-      return h * 60 + min >= new Date().getHours() * 60 + new Date().getMinutes();
-    }
-
-    function getTodayOrder(dateStr) {
-      try {
-        return JSON.parse(localStorage.getItem(ORDER_KEY_PREFIX + dateStr)) || [];
-      } catch { return []; }
-    }
-
-    function saveTodayOrder(dateStr, ids) {
-      localStorage.setItem(ORDER_KEY_PREFIX + dateStr, JSON.stringify(ids));
-    }
-
-    function sortTodayEvents(list, dateStr) {
-      const order = getTodayOrder(dateStr);
-      return [...list].sort((a, b) => {
-        const ia = order.indexOf(a.id);
-        const ib = order.indexOf(b.id);
-        if (ia === -1 && ib === -1) return a.time.localeCompare(b.time);
-        if (ia === -1) return 1;
-        if (ib === -1) return -1;
-        return ia - ib;
-      });
+    function showToast(msg) {
+      $("toast").textContent = msg;
+      $("toast").classList.add("show");
+      setTimeout(() => $("toast").classList.remove("show"), 2000);
     }
 
     function initTheme() {
@@ -2293,1462 +964,9 @@
       $("theme-btn").textContent = dark ? "🌙" : "☀️";
     }
 
-    function getEventsForDate(dateStr, upcomingOnly = false) {
-      const list = events.filter(e => eventOccursOn(e, dateStr));
-      const filtered = upcomingOnly ? list.filter(e => isUpcomingOnDate(e, dateStr)) : list;
-      const todayStr = formatDate(new Date());
-      if (dateStr === todayStr && upcomingOnly) {
-        return sortTodayEvents(filtered, dateStr);
-      }
-      return filtered.sort((a, b) => a.time.localeCompare(b.time));
-    }
-
-    function getAllOccurrences(upcomingOnly = true) {
-      const result = [];
-      const todayStr = formatDate(new Date());
-      const end = addDays(new Date(), 60);
-
-      events.forEach(event => {
-        if (event.repeat === "weekly") {
-          let cur = todayStr >= event.date ? todayStr : event.date;
-          if (getWeekday(cur) !== getWeekday(event.date)) {
-            const d = new Date(cur + "T00:00:00");
-            const diff = (getWeekday(event.date) - d.getDay() + 7) % 7;
-            d.setDate(d.getDate() + diff);
-            cur = formatDate(d);
-          }
-          while (cur <= end) {
-            if (!upcomingOnly || isUpcomingOnDate(event, cur)) {
-              result.push({ event, dateStr: cur });
-            }
-            cur = addDays(new Date(cur + "T00:00:00"), 7);
-          }
-        } else if (!upcomingOnly || isUpcomingOnDate(event, event.date)) {
-          result.push({ event, dateStr: event.date });
-        }
-      });
-
-      return result.sort((a, b) => {
-        const c = a.dateStr.localeCompare(b.dateStr);
-        return c !== 0 ? c : a.event.time.localeCompare(b.event.time);
-      });
-    }
-
-    function getFutureOccurrences(excludeToday = false) {
-      const all = getAllOccurrences(true);
-      if (!excludeToday) return all;
-      const todayStr = formatDate(new Date());
-      return all.filter(o => o.dateStr > todayStr);
-    }
-
-    function getWeekRange() {
-      const now = new Date();
-      const start = new Date(now);
-      start.setDate(now.getDate() - now.getDay());
-      const end = new Date(start);
-      end.setDate(start.getDate() + 6);
-      return { start: formatDate(start), end: formatDate(end) };
-    }
-
-    function formatDisplayDate(dateStr) {
-      const [y, m, d] = dateStr.split("-");
-      const date = new Date(Number(y), Number(m) - 1, Number(d));
-      const wd = ["일","월","화","수","목","금","토"];
-      return `${y}년 ${Number(m)}월 ${Number(d)}일 (${wd[date.getDay()]})`;
-    }
-
-    function getRelativeLabel(dateStr) {
-      const todayStr = formatDate(new Date());
-      if (dateStr === todayStr) return "오늘";
-      const diff = Math.round((new Date(dateStr + "T00:00:00") - new Date(todayStr + "T00:00:00")) / 86400000);
-      if (diff === 1) return "내일";
-      if (diff === 2) return "모레";
-      return `${diff}일 후`;
-    }
-
-    function getDday(dateStr) {
-      const todayStr = formatDate(new Date());
-      return Math.round((new Date(dateStr + "T00:00:00") - new Date(todayStr + "T00:00:00")) / 86400000);
-    }
-
-    function getDdayLabel(dateStr) {
-      const days = getDday(dateStr);
-      if (days === 0) return "D-Day";
-      return `D-${days}`;
-    }
-
-    function escapeHtml(t) {
-      const d = document.createElement("div");
-      d.textContent = t;
-      return d.innerHTML;
-    }
-
-    function showToast(msg) {
-      $("toast").textContent = msg;
-      $("toast").classList.add("show");
-      setTimeout(() => $("toast").classList.remove("show"), 2000);
-    }
-
-    function switchTab(name) {
-      if (name !== "list" && listDeleteMode) exitListDeleteMode(false);
-      document.querySelectorAll(".tab-btn").forEach(b => b.classList.toggle("active", b.dataset.tab === name));
-      document.querySelectorAll(".panel").forEach(p => p.classList.toggle("active", p.id === `panel-${name}`));
-    }
-
-    function buildBadges(event) {
-      let h = `<span class="badge badge-cat-${event.category}">${CATEGORY_LABELS[event.category]}</span>`;
-      if (event.important) h += `<span class="badge badge-important">중요</span>`;
-      if (event.repeat === "weekly") h += `<span class="badge badge-repeat">매주</span>`;
-      if (event.dday) h += `<span class="badge badge-dday">${getDdayLabel(event.date)}</span>`;
-      return h;
-    }
-
-    function toggleDone(eventId, dateStr) {
-      const event = events.find(e => e.id === eventId);
-      if (!event) return;
-      if (!event.doneDates) event.doneDates = [];
-      const idx = event.doneDates.indexOf(dateStr);
-      if (idx >= 0) event.doneDates.splice(idx, 1);
-      else event.doneDates.push(dateStr);
-      saveEvents().then(() => renderAll());
-    }
-
-    function deleteEvent(id) {
-      if (!confirm("이 일정을 삭제할까요?")) return;
-      events = events.filter(e => e.id !== id);
-      listSelectedIds.delete(id);
-      saveEvents().then(() => {
-        renderAll();
-        showToast("일정이 삭제되었습니다");
-      });
-    }
-
-    function openEdit(eventId) {
-      const event = events.find(e => e.id === eventId);
-      if (!event) return;
-      $("edit-id").value = event.id;
-      $("edit-title").value = event.title;
-      $("edit-date").value = event.date;
-      $("edit-time").value = event.time;
-      $("edit-category").value = event.category;
-      $("edit-repeat").value = event.repeat;
-      $("edit-memo").value = event.memo;
-      $("edit-important").checked = event.important;
-      $("edit-dday").checked = event.dday;
-      $("edit-modal").classList.add("open");
-    }
-
-    function closeEdit() {
-      $("edit-modal").classList.remove("open");
-    }
-
-    function renderEventEl(event, dateStr, opts = {}) {
-      const { showDate = false, showCheck = false, showSelect = false, deleteSelectMode = false, hideDelete = false, hideEdit = false, asList = false, draggable = false, compact = false, home = false } = opts;
-      const done = isDone(event, dateStr);
-      const isSelected = listSelectedIds.has(event.id);
-      const el = document.createElement(asList ? "li" : "div");
-      el.className = `${asList ? "event-item" : "event-card"} cat-${event.category}${event.important ? " important" : ""}${done ? " done" : ""}${compact ? " compact" : ""}${home ? " home-card" : ""}`;
-      if (deleteSelectMode) {
-        el.classList.add("delete-selectable");
-        if (isSelected) el.classList.add("selected-for-delete");
-      }
-      el.dataset.id = event.id;
-      if (draggable) el.draggable = true;
-
-      let dateBox = "";
-      if (showDate) {
-        const [, m, d] = dateStr.split("-");
-        dateBox = `<div class="event-date-box"><div class="month">${Number(m)}월</div><div class="day">${Number(d)}</div></div>`;
-      }
-
-      const dragHtml = draggable ? `<span class="drag-handle" title="드래그">⠿</span>` : "";
-      const checkHtml = showCheck
-        ? `<button type="button" class="check-btn${done ? " checked" : ""}" aria-label="완료">${done ? "✓" : ""}</button>`
-        : "";
-      const selectHtml = showSelect
-        ? (deleteSelectMode
-          ? `<button type="button" class="check-btn delete-select${isSelected ? " checked" : ""}" aria-label="선택">${isSelected ? "✓" : ""}</button>`
-          : `<input type="checkbox" class="select-check" aria-label="선택"${isSelected ? " checked" : ""}>`)
-        : "";
-      const deleteHtml = hideDelete
-        ? ""
-        : `<button type="button" class="icon-btn del" title="삭제">×</button>`;
-      const editHtml = hideEdit
-        ? ""
-        : `<button type="button" class="icon-btn edit-btn" title="수정">✎</button>`;
-
-      el.innerHTML = `
-        ${dragHtml}${selectHtml}${checkHtml}${dateBox}
-        <div class="${asList ? "event-body" : "event-main"}">
-          <div class="event-title">${escapeHtml(event.title)} ${buildBadges(event)}</div>
-          <div class="${asList ? "event-meta" : "event-sub"}">${event.time}${showDate && !home ? " · " + formatDisplayDate(dateStr) : ""}</div>
-          ${event.memo && !compact ? `<div class="event-memo">${escapeHtml(event.memo)}</div>` : ""}
-        </div>
-        <div class="item-actions">
-          ${editHtml}
-          ${deleteHtml}
-        </div>`;
-
-      if (showCheck) {
-        el.querySelector(".check-btn").addEventListener("click", e => {
-          e.stopPropagation();
-          toggleDone(event.id, dateStr);
-        });
-      }
-      if (showSelect && deleteSelectMode) {
-        el.addEventListener("click", () => toggleListSelection(event.id));
-      } else if (showSelect) {
-        el.querySelector(".select-check").addEventListener("change", e => {
-          if (e.target.checked) listSelectedIds.add(event.id);
-          else listSelectedIds.delete(event.id);
-          updateListActionButtons();
-        });
-      }
-      if (!hideEdit) el.querySelector(".edit-btn").addEventListener("click", () => openEdit(event.id));
-      if (!hideDelete) el.querySelector(".del").addEventListener("click", () => deleteEvent(event.id));
-      return el;
-    }
-
-    function getAllListEventIds() {
-      return [...new Set(getAllOccurrences(false).map(o => o.event.id))];
-    }
-
-    function resetListActionButtons() {
-      $("list-select-all").textContent = "전체선택";
-      $("list-delete-selected").disabled = true;
-    }
-
-    function updateListActionButtons() {
-      if (!listDeleteMode) return;
-      const allIds = getAllListEventIds();
-      const allSelected = allIds.length > 0 && allIds.every(id => listSelectedIds.has(id));
-      $("list-select-all").textContent = allSelected ? "선택해제" : "전체선택";
-      $("list-delete-selected").disabled = listSelectedIds.size === 0;
-    }
-
-    function toggleListSelection(id) {
-      if (listSelectedIds.has(id)) listSelectedIds.delete(id);
-      else listSelectedIds.add(id);
-      renderList();
-    }
-
-    function enterListDeleteMode() {
-      listDeleteMode = true;
-      listSelectedIds.clear();
-      resetListActionButtons();
-      $("list-normal-actions").hidden = true;
-      $("list-delete-actions").hidden = false;
-      renderList();
-    }
-
-    function exitListDeleteMode(rerender = true) {
-      listDeleteMode = false;
-      listSelectedIds.clear();
-      resetListActionButtons();
-      $("list-normal-actions").hidden = false;
-      $("list-delete-actions").hidden = true;
-      if (rerender) renderList();
-    }
-
-    function toggleListSelectAll() {
-      const allIds = getAllListEventIds();
-      const allSelected = allIds.length > 0 && allIds.every(id => listSelectedIds.has(id));
-      if (allSelected) listSelectedIds.clear();
-      else allIds.forEach(id => listSelectedIds.add(id));
-      renderList();
-    }
-
-    function deleteSelectedEvents() {
-      if (listSelectedIds.size === 0) {
-        showToast("삭제할 일정을 선택하세요");
-        return;
-      }
-      if (!confirm(`선택한 ${listSelectedIds.size}개 일정을 삭제할까요?`)) return;
-      events = events.filter(e => !listSelectedIds.has(e.id));
-      exitListDeleteMode(false);
-      saveEvents().then(() => {
-        renderAll();
-        showToast("선택한 일정이 삭제되었습니다");
-      });
-    }
-
-    function renderPagination(container, items, page, pageSize, onChange) {
-      container.innerHTML = "";
-      const totalPages = Math.max(1, Math.ceil(items.length / pageSize));
-      if (items.length <= pageSize) return;
-
-      const prev = document.createElement("button");
-      prev.type = "button";
-      prev.className = "page-btn";
-      prev.textContent = "‹ 이전";
-      prev.disabled = page <= 0;
-      prev.addEventListener("click", () => onChange(page - 1));
-
-      const info = document.createElement("span");
-      info.className = "page-info";
-      info.textContent = `${page + 1} / ${totalPages}`;
-
-      const next = document.createElement("button");
-      next.type = "button";
-      next.className = "page-btn";
-      next.textContent = "다음 ›";
-      next.disabled = page >= totalPages - 1;
-      next.addEventListener("click", () => onChange(page + 1));
-
-      container.appendChild(prev);
-      container.appendChild(info);
-      container.appendChild(next);
-    }
-
-    function paginateSlice(items, page, pageSize) {
-      const totalPages = Math.max(1, Math.ceil(items.length / pageSize));
-      const safePage = Math.min(Math.max(page, 0), totalPages - 1);
-      const start = safePage * pageSize;
-      return { slice: items.slice(start, start + pageSize), page: safePage, totalPages };
-    }
-
-    function renderPagedSection(listEl, paginationEl, items, page, pageSize, renderItem, onPageChange, emptyMsg = "일정 없음") {
-      listEl.innerHTML = "";
-      if (items.length === 0) {
-        const tag = listEl.tagName === "UL" ? "li" : "p";
-        listEl.innerHTML = `<${tag} class="list-empty">${emptyMsg}</${tag}>`;
-        paginationEl.innerHTML = "";
-        return 0;
-      }
-
-      const { slice, page: safePage } = paginateSlice(items, page, pageSize);
-      slice.forEach(item => listEl.appendChild(renderItem(item)));
-      renderPagination(paginationEl, items, safePage, pageSize, onPageChange);
-      return safePage;
-    }
-
-    function setupDragSort(container, dateStr) {
-      let dragId = null;
-
-      container.querySelectorAll("[draggable=true]").forEach(el => {
-        el.addEventListener("dragstart", e => {
-          if (e.target.closest(".check-btn, .icon-btn")) {
-            e.preventDefault();
-            return;
-          }
-          dragId = el.dataset.id;
-          el.classList.add("dragging");
-          e.dataTransfer.effectAllowed = "move";
-        });
-
-        el.addEventListener("dragend", () => {
-          el.classList.remove("dragging");
-          container.querySelectorAll(".drag-over").forEach(x => x.classList.remove("drag-over"));
-        });
-
-        el.addEventListener("dragover", e => {
-          e.preventDefault();
-          el.classList.add("drag-over");
-        });
-
-        el.addEventListener("dragleave", () => el.classList.remove("drag-over"));
-
-        el.addEventListener("drop", e => {
-          e.preventDefault();
-          el.classList.remove("drag-over");
-          const targetId = el.dataset.id;
-          if (!dragId || dragId === targetId) return;
-
-          const ids = [...container.querySelectorAll("[data-id]")].map(n => n.dataset.id);
-          const from = ids.indexOf(dragId);
-          const to = ids.indexOf(targetId);
-          if (from < 0 || to < 0) return;
-
-          ids.splice(from, 1);
-          ids.splice(to, 0, dragId);
-          saveTodayOrder(dateStr, ids);
-          renderDashboard();
-          renderProgress();
-          showToast("순서가 변경되었습니다");
-        });
-      });
-    }
-
-    function renderProgress() {
-      const todayStr = formatDate(new Date());
-      const todayAll = getEventsForDate(todayStr, false);
-      const done = todayAll.filter(e => isDone(e, todayStr)).length;
-      const total = todayAll.length;
-      const pct = total ? Math.round((done / total) * 100) : 0;
-      $("progress-label").textContent = `${done} / ${total} 완료`;
-      $("progress-pct").textContent = `${pct}%`;
-      $("progress-fill").style.width = `${pct}%`;
-    }
-
-    function renderDday() {
-      const list = $("dday-list");
-      const pag = $("dday-pagination");
-      const ddayEvents = events
-        .filter(e => e.dday && getDday(e.date) >= 0)
-        .sort((a, b) => getDday(a.date) - getDday(b.date));
-
-      list.innerHTML = "";
-      if (ddayEvents.length === 0) {
-        list.innerHTML = `<p class="list-empty" style="padding:8px;grid-column:1/-1">D-day 일정 없음</p>`;
-        pag.innerHTML = "";
-        return;
-      }
-
-      const { slice, page: safePage } = paginateSlice(ddayEvents, ddayPage, DDAY_PAGE_SIZE);
-      ddayPage = safePage;
-
-      slice.forEach(e => {
-        const div = document.createElement("div");
-        div.className = "dday-item";
-        div.innerHTML = `
-          <div class="days">${getDdayLabel(e.date)}</div>
-          <div class="title">${escapeHtml(e.title)}</div>
-          <div class="date">${formatDisplayDate(e.date)}</div>`;
-        list.appendChild(div);
-      });
-
-      renderPagination(pag, ddayEvents, ddayPage, DDAY_PAGE_SIZE, p => {
-        ddayPage = p;
-        renderDday();
-      });
-    }
-
-    function renderSearch(query) {
-      const box = $("search-results");
-      box.innerHTML = "";
-      if (!query.trim()) return;
-
-      const q = query.toLowerCase();
-      const matches = getAllOccurrences(false).filter(({ event }) =>
-        event.title.toLowerCase().includes(q) ||
-        event.memo.toLowerCase().includes(q) ||
-        CATEGORY_LABELS[event.category].includes(q)
-      ).slice(0, 8);
-
-      if (matches.length === 0) {
-        box.innerHTML = `<p class="list-empty" style="padding:8px">검색 결과 없음</p>`;
-        return;
-      }
-
-      matches.forEach(({ event, dateStr }) => {
-        const div = document.createElement("div");
-        div.className = "search-item";
-        div.style.borderLeftColor = `var(--cat-${event.category})`;
-        div.innerHTML = `<strong>${escapeHtml(event.title)}</strong><br><span style="font-size:0.78rem;color:var(--text-muted)">${formatDisplayDate(dateStr)} ${event.time}</span>`;
-        div.addEventListener("click", () => {
-          selectedDate = dateStr;
-          viewYear = Number(dateStr.split("-")[0]);
-          viewMonth = Number(dateStr.split("-")[1]) - 1;
-          switchTab("calendar");
-          renderCalendar();
-        });
-        box.appendChild(div);
-      });
-    }
-
-    function renderNextEvent() {
-      const occ = getAllOccurrences(true);
-      const next = occ[0];
-      const box = $("next-event-box");
-      if (!next) {
-        box.innerHTML = `<div class="next-event"><div class="next-event-label">다음 일정</div><div class="next-event-meta">예정된 일정이 없습니다</div></div>`;
-        return;
-      }
-      const { event, dateStr } = next;
-      box.innerHTML = `
-        <div class="next-event">
-          <div class="next-event-label">다음 일정 · ${getRelativeLabel(dateStr)} ${event.time}</div>
-          <div class="next-event-title">${escapeHtml(event.title)}</div>
-          <div class="next-event-meta">${formatDisplayDate(dateStr)} · ${CATEGORY_LABELS[event.category]}</div>
-        </div>`;
-    }
-
-    function renderMiniWeek() {
-      const { start, end } = getWeekRange();
-      const todayStr = formatDate(new Date());
-      const wd = ["일","월","화","수","목","금","토"];
-      const grid = $("mini-week");
-      grid.innerHTML = "";
-
-      for (let i = 0; i < 7; i++) {
-        const date = new Date(start + "T00:00:00");
-        date.setDate(date.getDate() + i);
-        const dateStr = formatDate(date);
-        const count = getEventsForDate(dateStr, false).length;
-        const btn = document.createElement("button");
-        btn.type = "button";
-        btn.className = "mini-day" + (dateStr === todayStr ? " today" : "");
-        btn.innerHTML = `
-          <div class="mini-day-name">${wd[i]}</div>
-          <div class="mini-day-num">${date.getDate()}</div>
-          <div class="mini-dots">${Array(Math.min(count,3)).fill('<span class="mini-dot"></span>').join("")}</div>`;
-        btn.addEventListener("click", () => openCalDayModal(dateStr));
-        grid.appendChild(btn);
-      }
-    }
-
-    function renderCategorySummary() {
-      const { start, end } = getWeekRange();
-      const box = $("cat-summary");
-      box.innerHTML = "";
-      ["school","personal","work","other"].forEach(cat => {
-        let count = 0;
-        for (let d = new Date(start + "T00:00:00"); formatDate(d) <= end; d.setDate(d.getDate() + 1)) {
-          count += getEventsForDate(formatDate(d), false).filter(e => e.category === cat).length;
-        }
-        const pill = document.createElement("button");
-        pill.type = "button";
-        pill.className = "cat-pill";
-        pill.textContent = `${CATEGORY_LABELS[cat]} ${count}`;
-        pill.addEventListener("click", () => openCategoryWeekModal(cat));
-        box.appendChild(pill);
-      });
-    }
-
-    function renderHomeEvent(event, dateStr, opts = {}) {
-      return renderEventEl(event, dateStr, {
-        showDate: true,
-        compact: true,
-        home: true,
-        ...opts
-      });
-    }
-
-    function renderDashboard() {
-      const todayStr = formatDate(new Date());
-      const { start, end } = getWeekRange();
-      const todayOcc = getEventsForDate(todayStr, false);
-      let weekCount = 0;
-      for (let d = new Date(start + "T00:00:00"); formatDate(d) <= end; d.setDate(d.getDate() + 1)) {
-        weekCount += getEventsForDate(formatDate(d), false).length;
-      }
-
-      $("dash-greeting-text").textContent = randomGreeting;
-      $("dash-date-text").textContent = formatDisplayDate(todayStr);
-      $("stat-today").textContent = todayOcc.length;
-      $("stat-week").textContent = weekCount;
-      $("stat-important").textContent = getAllOccurrences(false).filter(o => o.event.important).length;
-
-      renderNextEvent();
-      renderMiniWeek();
-      renderCategorySummary();
-
-      const todayList = $("dash-today-list");
-      const todayPagination = $("today-pagination");
-      const sortedToday = sortTodayEvents(todayOcc, todayStr);
-
-      todayPage = renderPagedSection(
-        todayList,
-        todayPagination,
-        sortedToday,
-        todayPage,
-        HOME_PAGE_SIZE,
-        e => renderHomeEvent(e, todayStr, { showCheck: true, draggable: true }),
-        newPage => { todayPage = newPage; renderDashboard(); },
-        "오늘 일정 없음"
-      );
-      if (sortedToday.length > 0) setupDragSort(todayList, todayStr);
-
-      const upList = $("dash-upcoming-list");
-      const upPagination = $("upcoming-pagination");
-      const upcomingAll = getFutureOccurrences(true);
-
-      upcomingPage = renderPagedSection(
-        upList,
-        upPagination,
-        upcomingAll,
-        upcomingPage,
-        HOME_PAGE_SIZE,
-        ({ event, dateStr }) => renderHomeEvent(event, dateStr),
-        newPage => { upcomingPage = newPage; renderDashboard(); },
-        "다가오는 일정 없음"
-      );
-    }
-
-    function buildCalCellEventsHtml(events, maxShow = 2) {
-      if (!events.length) return "";
-      const shown = events.slice(0, maxShow);
-      let html = shown.map(e =>
-        `<span class="cal-event-pill cat-${e.category}">${escapeHtml(e.title)}</span>`
-      ).join("");
-      if (events.length > maxShow) {
-        html += `<span class="cal-event-more">+${events.length - maxShow}</span>`;
-      }
-      return html;
-    }
-
-    function getCategoryWeekOccurrences(category) {
-      const { start, end } = getWeekRange();
-      const occurrences = [];
-      for (let d = new Date(start + "T00:00:00"); formatDate(d) <= end; d.setDate(d.getDate() + 1)) {
-        const dateStr = formatDate(d);
-        getEventsForDate(dateStr, false)
-          .filter(e => e.category === category)
-          .forEach(event => occurrences.push({ event, dateStr }));
-      }
-      return occurrences;
-    }
-
-    function renderEventListModal(title, occurrences) {
-      $("cal-day-modal-title").textContent = title;
-      const dayEl = $("cal-day-modal-events");
-      dayEl.innerHTML = "";
-      if (!occurrences.length) {
-        dayEl.innerHTML = `<li class="list-empty">일정 없음</li>`;
-      } else {
-        const todayStr = formatDate(new Date());
-        occurrences.forEach(({ event, dateStr }) => {
-          dayEl.appendChild(renderEventEl(event, dateStr, {
-            asList: true,
-            showDate: true,
-            showCheck: dateStr === todayStr
-          }));
-        });
-      }
-    }
-
-    function refreshEventModal() {
-      if (!eventModalContext) return;
-      if (eventModalContext.type === "day") {
-        const dateStr = eventModalContext.dateStr;
-        const list = getEventsForDate(dateStr, false);
-        renderEventListModal(formatDisplayDate(dateStr), list.map(event => ({ event, dateStr })));
-      } else if (eventModalContext.type === "category") {
-        renderEventListModal(
-          `이번 주 · ${CATEGORY_LABELS[eventModalContext.category]}`,
-          getCategoryWeekOccurrences(eventModalContext.category)
-        );
-      }
-      if (!$("modal-add-wrap").hidden) {
-        $("cal-day-modal-events").hidden = true;
-      }
-    }
-
-    function hideModalAddForm() {
-      $("modal-add-wrap").hidden = true;
-      $("cal-day-modal-events").hidden = false;
-      $("modal-add-form").reset();
-      $("modal-add-time").value = "09:00";
-    }
-
-    function showModalAddForm(dateStr) {
-      $("modal-add-date").value = dateStr;
-      $("modal-add-date-label").textContent = formatDisplayDate(dateStr);
-      $("modal-add-time").value = "09:00";
-      $("cal-day-modal-events").hidden = true;
-      $("modal-add-wrap").hidden = false;
-      $("cal-day-modal-add-btn").hidden = true;
-      $("modal-add-title").focus();
-    }
-
-    function updateModalAddUi() {
-      hideModalAddForm();
-      $("cal-day-modal-add-btn").hidden = eventModalContext?.type !== "day";
-    }
-
-    function pushNewEvent(data) {
-      events.push(normalizeEvent({
-        id: crypto.randomUUID(),
-        doneDates: [],
-        ...data
-      }));
-      return saveEvents();
-    }
-
-    function openCalDayModal(dateStr) {
-      selectedDate = dateStr;
-      eventModalContext = { type: "day", dateStr };
-      refreshEventModal();
-      updateModalAddUi();
-      $("cal-day-modal").classList.add("open");
-      renderCalendar();
-    }
-
-    function openCategoryWeekModal(category) {
-      eventModalContext = { type: "category", category };
-      refreshEventModal();
-      updateModalAddUi();
-      $("cal-day-modal").classList.add("open");
-    }
-
-    function closeCalDayModal() {
-      $("cal-day-modal").classList.remove("open");
-      eventModalContext = null;
-      hideModalAddForm();
-    }
-
-    function appendCalDayCell(grid, cellYear, cellMonth, cellDay, todayStr) {
-      const dateStr = `${cellYear}-${String(cellMonth + 1).padStart(2, "0")}-${String(cellDay).padStart(2, "0")}`;
-      const isCurrentMonth = cellYear === viewYear && cellMonth === viewMonth;
-      const dayEvents = getEventsForDate(dateStr, false);
-      const btn = document.createElement("button");
-      btn.type = "button";
-      btn.className = "cal-day";
-      if (!isCurrentMonth) btn.classList.add("other-month");
-      if (dateStr === todayStr) btn.classList.add("today");
-      if (dateStr === selectedDate) btn.classList.add("selected");
-      const dayLabel = isCurrentMonth ? String(cellDay) : `${cellMonth + 1}/${cellDay}`;
-      btn.innerHTML = `
-        <span class="cal-day-num">${dayLabel}</span>
-        <div class="cal-cell-events">${buildCalCellEventsHtml(dayEvents)}</div>`;
-      btn.addEventListener("click", () => openCalDayModal(dateStr));
-      grid.appendChild(btn);
-    }
-
-    function renderCalendar() {
-      $("cal-title").textContent = `${viewYear}년 ${viewMonth + 1}월`;
-      const grid = $("cal-grid");
-      grid.innerHTML = "";
-      const firstDay = new Date(viewYear, viewMonth, 1).getDay();
-      const daysInMonth = new Date(viewYear, viewMonth + 1, 0).getDate();
-      const todayStr = formatDate(new Date());
-      const totalCells = 42;
-
-      for (let i = 0; i < totalCells; i++) {
-        const dayNum = i - firstDay + 1;
-        let cellYear = viewYear;
-        let cellMonth = viewMonth;
-        let cellDay = dayNum;
-
-        if (dayNum < 1) {
-          cellMonth = viewMonth === 0 ? 11 : viewMonth - 1;
-          cellYear = viewMonth === 0 ? viewYear - 1 : viewYear;
-          const daysInPrev = new Date(cellYear, cellMonth + 1, 0).getDate();
-          cellDay = daysInPrev + dayNum;
-        } else if (dayNum > daysInMonth) {
-          cellMonth = viewMonth === 11 ? 0 : viewMonth + 1;
-          cellYear = viewMonth === 11 ? viewYear + 1 : viewYear;
-          cellDay = dayNum - daysInMonth;
-        }
-
-        appendCalDayCell(grid, cellYear, cellMonth, cellDay, todayStr);
-      }
-
-      if ($("cal-day-modal").classList.contains("open")) {
-        refreshEventModal();
-      }
-    }
-
-    function renderList() {
-      const list = $("all-events");
-      const paginationEl = $("list-pagination");
-      const occ = getAllOccurrences(false);
-      const todayStr = formatDate(new Date());
-
-      listPage = renderPagedSection(
-        list,
-        paginationEl,
-        occ,
-        listPage,
-        LIST_PAGE_SIZE,
-        ({ event, dateStr }) => renderEventEl(event, dateStr, {
-          asList: true,
-          showDate: true,
-          showCheck: dateStr === todayStr && !listDeleteMode,
-          showSelect: listDeleteMode,
-          deleteSelectMode: listDeleteMode,
-          hideDelete: true,
-          hideEdit: listDeleteMode
-        }),
-        newPage => { listPage = newPage; renderList(); },
-        "다가오는 일정 없음"
-      );
-      updateListActionButtons();
-    }
-
-    function renderAll() {
-      renderProgress();
-      renderDday();
-      renderSearch($("search-input").value);
-      renderDashboard();
-      renderCalendar();
-      renderList();
-      if ($("cal-day-modal").classList.contains("open")) refreshEventModal();
-    }
-
-    function createSampleEvents() {
-      const t = new Date();
-      return [
-        { id: crypto.randomUUID(), title: "test", date: addDays(t,0), time: "08:00", memo: "아침 루틴", category: "personal", important: false, dday: false, repeat: "none", doneDates: [] },
-        { id: crypto.randomUUID(), title: "커피 타임", date: addDays(t,0), time: "09:30", memo: "카페에서 공부", category: "personal", important: false, dday: false, repeat: "none", doneDates: [] },
-        { id: crypto.randomUUID(), title: "웹개발 수업", date: addDays(t,0), time: "10:00", memo: "프로젝트 발표", category: "school", important: true, dday: false, repeat: "none", doneDates: [] },
-        { id: crypto.randomUUID(), title: "팀 스탠드업", date: addDays(t,0), time: "11:00", memo: "진행 상황 공유", category: "work", important: false, dday: false, repeat: "none", doneDates: [] },
-        { id: crypto.randomUUID(), title: "점심 약속", date: addDays(t,0), time: "12:30", memo: "친구 만나기", category: "personal", important: false, dday: false, repeat: "none", doneDates: [] },
-        { id: crypto.randomUUID(), title: "스터디", date: addDays(t,0), time: "14:00", memo: "JS 복습", category: "school", important: false, dday: false, repeat: "none", doneDates: [] },
-        { id: crypto.randomUUID(), title: "운동", date: addDays(t,0), time: "16:00", memo: "헬스 1시간", category: "personal", important: false, dday: false, repeat: "none", doneDates: [] },
-        { id: crypto.randomUUID(), title: "알바 준비", date: addDays(t,0), time: "18:00", memo: "", category: "work", important: false, dday: false, repeat: "none", doneDates: [] },
-        { id: crypto.randomUUID(), title: "저녁 식사", date: addDays(t,0), time: "19:30", memo: "가족 외식", category: "personal", important: false, dday: false, repeat: "none", doneDates: [] },
-        { id: crypto.randomUUID(), title: "과제 확인", date: addDays(t,0), time: "20:00", memo: "GitHub push", category: "school", important: true, dday: true, repeat: "none", doneDates: [] },
-        { id: crypto.randomUUID(), title: "코딩 연습", date: addDays(t,0), time: "21:00", memo: "PlanDay 개선", category: "school", important: false, dday: false, repeat: "none", doneDates: [] },
-        { id: crypto.randomUUID(), title: "어제 회의", date: addDays(t,-1), time: "14:00", memo: "팀 회고", category: "work", important: false, dday: false, repeat: "none", doneDates: [] },
-        { id: crypto.randomUUID(), title: "어제 운동", date: addDays(t,-1), time: "19:00", memo: "조깅", category: "personal", important: false, dday: false, repeat: "none", doneDates: [] },
-        { id: crypto.randomUUID(), title: "그저께 공부", date: addDays(t,-2), time: "10:00", memo: "Git 복습", category: "school", important: false, dday: false, repeat: "none", doneDates: [] },
-        { id: crypto.randomUUID(), title: "팀 미팅", date: addDays(t,1), time: "10:30", memo: "주간 공유", category: "work", important: true, dday: false, repeat: "none", doneDates: [] },
-        { id: crypto.randomUUID(), title: "과제 제출", date: addDays(t,2), time: "23:59", memo: "GitHub URL", category: "school", important: true, dday: true, repeat: "none", doneDates: [] },
-        { id: crypto.randomUUID(), title: "중간고사", date: addDays(t,7), time: "09:00", memo: "웹개발", category: "school", important: true, dday: true, repeat: "none", doneDates: [] },
-        { id: crypto.randomUUID(), title: "알바", date: addDays(t,4), time: "17:00", memo: "", category: "work", important: false, dday: false, repeat: "weekly", doneDates: [] },
-        { id: crypto.randomUUID(), title: "프로젝트 마감", date: addDays(t,5), time: "18:00", memo: "최종", category: "work", important: true, dday: true, repeat: "none", doneDates: [] },
-        { id: crypto.randomUUID(), title: "장보기", date: addDays(t,3), time: "16:00", memo: "", category: "other", important: false, dday: false, repeat: "none", doneDates: [] }
-      ].map(normalizeEvent);
-    }
-
-    function seedSampleData() {
-      if (localStorage.getItem(SEED_KEY)) return;
-      events = createSampleEvents();
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(events));
-      localStorage.setItem(SEED_KEY, "1");
-    }
-
-    const CHAT_SUGGESTIONS = ["오늘 일정", "내일 일정", "D-day 알려줘", "도움말"];
-    const CHAT_SYSTEM_PROMPT =
-      "당신은 PlanDay 일정 관리 앱의 AI 도우미입니다.\n" +
-      "사용자의 일정 조회, D-day 확인, 일정 추가를 친절하게 도와줍니다.";
-
-    let chatOpen = false;
-    let chatInitialized = false;
-    let chatSessions = [];
-    let currentSessionId = null;
-    let currentSessionTitle = "";
-    let currentMessages = [];
-    let currentSystemMessage = "";
-    let chatActiveTab = "messages";
-
-    function getDefaultSystemMessage() {
-      return CHAT_SYSTEM_PROMPT + "\n\n--- 디버그 로그 ---";
-    }
-
-    function formatSessionTitle(dateInput) {
-      const d = dateInput instanceof Date ? dateInput : new Date(dateInput);
-      const y = d.getFullYear();
-      const m = String(d.getMonth() + 1).padStart(2, "0");
-      const day = String(d.getDate()).padStart(2, "0");
-      const h = String(d.getHours()).padStart(2, "0");
-      const min = String(d.getMinutes()).padStart(2, "0");
-      return `${y}-${m}-${day} ${h}:${min} 대화`;
-    }
-
-    function formatSessionMeta(session) {
-      const count = Array.isArray(session.messages) ? session.messages.length : 0;
-      const updated = new Date(session.updated_at || session.created_at);
-      const label = `${updated.getMonth() + 1}/${updated.getDate()} ${String(updated.getHours()).padStart(2, "0")}:${String(updated.getMinutes()).padStart(2, "0")}`;
-      return `${count}개 메시지 · ${label}`;
-    }
-
-    function appendSystemLog(line) {
-      if (!currentSystemMessage.includes("--- 디버그 로그 ---")) {
-        currentSystemMessage = getDefaultSystemMessage();
-      }
-      currentSystemMessage += `\n[${new Date().toISOString()}] ${line}`;
-    }
-
-    function setChatWidgetVisible(visible) {
-      $("chat-widget").hidden = !visible;
-    }
-
-    function switchChatTab(tab) {
-      chatActiveTab = tab;
-      document.querySelectorAll(".chat-tab").forEach(btn => {
-        btn.classList.toggle("active", btn.dataset.chatTab === tab);
-      });
-      $("chat-view-messages").classList.toggle("active", tab === "messages");
-      $("chat-view-history").classList.toggle("active", tab === "history");
-      $("chat-view-system").classList.toggle("active", tab === "system");
-      if (tab === "history") renderChatSessionList();
-      if (tab === "system") renderChatSystemBox();
-    }
-
-    function updateChatSessionLabel() {
-      $("chat-session-label").textContent = currentSessionId
-        ? currentSessionTitle || "대화 중"
-        : "새 대화";
-    }
-
-    async function loadChatSessionsFromSupabase() {
-      if (!supabase || !currentUser) {
-        chatSessions = [];
-        return;
-      }
-      const { data, error } = await supabase
-        .from("conversation_records")
-        .select("*")
-        .order("updated_at", { ascending: false });
-      if (error) {
-        console.error(error);
-        chatSessions = [];
-        return;
-      }
-      chatSessions = data || [];
-    }
-
-    async function createChatSessionInDb() {
-      const now = new Date();
-      const title = formatSessionTitle(now);
-      currentSystemMessage = getDefaultSystemMessage();
-      const row = {
-        user_id: currentUser.id,
-        title,
-        messages: [],
-        system_message: currentSystemMessage
-      };
-      const { data, error } = await supabase
-        .from("conversation_records")
-        .insert(row)
-        .select()
-        .single();
-      if (error) throw error;
-      currentSessionId = data.id;
-      currentSessionTitle = data.title;
-      currentMessages = [];
-      chatSessions.unshift(data);
-      updateChatSessionLabel();
-      return data;
-    }
-
-    async function ensureChatSession() {
-      if (currentSessionId) return;
-      if (!supabase || !currentUser) {
-        throw new Error("로그인이 필요합니다.");
-      }
-      await createChatSessionInDb();
-    }
-
-    async function persistChatSession() {
-      if (!currentSessionId || !supabase) return;
-      const { data, error } = await supabase
-        .from("conversation_records")
-        .update({
-          messages: currentMessages,
-          system_message: currentSystemMessage
-        })
-        .eq("id", currentSessionId)
-        .select()
-        .single();
-      if (error) throw error;
-      const idx = chatSessions.findIndex(s => s.id === currentSessionId);
-      if (idx >= 0) chatSessions[idx] = data;
-      else chatSessions.unshift(data);
-    }
-
-    function startNewChatSession() {
-      currentSessionId = null;
-      currentSessionTitle = "";
-      currentMessages = [];
-      currentSystemMessage = getDefaultSystemMessage();
-      updateChatSessionLabel();
-      renderChatMessages(true);
-      renderChatSystemBox();
-      renderChatSessionList();
-    }
-
-    async function initChatForUser() {
-      await loadChatSessionsFromSupabase();
-      startNewChatSession();
-    }
-
-    function resetChatForUser() {
-      chatSessions = [];
-      currentSessionId = null;
-      currentSessionTitle = "";
-      currentMessages = [];
-      currentSystemMessage = "";
-      closeChatPanel();
-    }
-
-    function openChatPanel() {
-      chatOpen = true;
-      $("chat-panel").classList.add("open");
-      setupChatbotEvents();
-      initChatbot();
-      $("chat-input").focus();
-    }
-
-    function closeChatPanel() {
-      chatOpen = false;
-      $("chat-panel").classList.remove("open");
-    }
-
-    function toggleChatPanel() {
-      if (chatOpen) closeChatPanel();
-      else openChatPanel();
-    }
-
-    function appendChatMessage(text, role = "bot") {
-      const el = document.createElement("div");
-      el.className = `chat-msg ${role}`;
-      el.textContent = text;
-      const box = $("chat-messages");
-      box.appendChild(el);
-      box.scrollTop = box.scrollHeight;
-      return el;
-    }
-
-    function renderChatMessages(showWelcome = false) {
-      const box = $("chat-messages");
-      box.innerHTML = "";
-      if (!currentMessages.length) {
-        if (showWelcome) {
-          appendChatMessage(
-            "안녕하세요! PlanDay AI입니다 🤖\n일정 조회, D-day 확인, 일정 추가를 도와드릴게요.\n아래 버튼을 누르거나 자유롭게 입력해 보세요.",
-            "bot"
-          );
-        }
-        return;
-      }
-      currentMessages.forEach(m => {
-        appendChatMessage(m.content, m.role === "user" ? "user" : "bot");
-      });
-    }
-
-    function renderChatSessionList() {
-      const box = $("chat-session-list");
-      box.innerHTML = "";
-      if (!chatSessions.length) {
-        box.innerHTML = `<p class="chat-session-empty">저장된 대화 기록이 없습니다.<br>대화 탭에서 메시지를 보내면 기록이 생성됩니다.</p>`;
-        return;
-      }
-      chatSessions.forEach(session => {
-        const btn = document.createElement("button");
-        btn.type = "button";
-        btn.className = "chat-session-item" + (session.id === currentSessionId ? " active" : "");
-        btn.innerHTML = `
-          <div class="session-title">${escapeHtml(session.title || formatSessionTitle(session.created_at))}</div>
-          <div class="session-meta">${formatSessionMeta(session)}</div>`;
-        btn.addEventListener("click", () => openChatSession(session.id));
-        box.appendChild(btn);
-      });
-    }
-
-    function renderChatSystemBox() {
-      const box = $("chat-system-box");
-      if (!currentSessionId && !currentSystemMessage) {
-        box.innerHTML = `<div class="chat-system-label">시스템 메시지</div>새 대화를 시작하면 시스템 설정과 디버그 정보가 여기에 표시됩니다.`;
-        return;
-      }
-      box.innerHTML =
-        `<div class="chat-system-label">시스템 메시지 · ${escapeHtml(currentSessionTitle || "새 대화")}</div>` +
-        escapeHtml(currentSystemMessage || getDefaultSystemMessage());
-    }
-
-    async function openChatSession(id) {
-      let session = chatSessions.find(s => s.id === id);
-      if (!session && supabase) {
-        const { data, error } = await supabase
-          .from("conversation_records")
-          .select("*")
-          .eq("id", id)
-          .single();
-        if (error) {
-          console.error(error);
-          showToast("대화 기록을 불러오지 못했습니다");
-          return;
-        }
-        session = data;
-      }
-      if (!session) return;
-
-      currentSessionId = session.id;
-      currentSessionTitle = session.title;
-      currentMessages = Array.isArray(session.messages) ? session.messages : [];
-      currentSystemMessage = session.system_message || getDefaultSystemMessage();
-      updateChatSessionLabel();
-      renderChatMessages(false);
-      renderChatSystemBox();
-      renderChatSessionList();
-      switchChatTab("messages");
-    }
-
-    function renderChatSuggestions() {
-      const box = $("chat-suggestions");
-      box.innerHTML = "";
-      CHAT_SUGGESTIONS.forEach(label => {
-        const btn = document.createElement("button");
-        btn.type = "button";
-        btn.className = "chat-chip";
-        btn.textContent = label;
-        btn.addEventListener("click", () => sendChatMessage(label));
-        box.appendChild(btn);
-      });
-    }
-
-    function formatEventLine(event, dateStr) {
-      const cat = CATEGORY_LABELS[event.category] || "기타";
-      const imp = event.important ? " ★" : "";
-      return `• ${event.time} ${event.title}${imp} [${cat}]`;
-    }
-
-    function formatEventList(items, emptyMsg) {
-      if (!items.length) return emptyMsg;
-      return items.map(({ event, dateStr }) => formatEventLine(event, dateStr)).join("\n");
-    }
-
-    function parseChatDate(text) {
-      const today = new Date();
-      if (/오늘/.test(text)) return formatDate(today);
-      if (/내일/.test(text)) return addDays(today, 1);
-      if (/모레/.test(text)) return addDays(today, 2);
-      const md = text.match(/(\d{1,2})\s*월\s*(\d{1,2})\s*일/);
-      if (md) {
-        const y = today.getFullYear();
-        return `${y}-${String(md[1]).padStart(2, "0")}-${String(md[2]).padStart(2, "0")}`;
-      }
-      return formatDate(today);
-    }
-
-    function parseChatTime(text) {
-      const hm = text.match(/(\d{1,2})\s*:\s*(\d{2})/);
-      if (hm) return `${String(hm[1]).padStart(2, "0")}:${hm[2]}`;
-      const h = text.match(/(\d{1,2})\s*시(?:\s*(\d{1,2})\s*분)?/);
-      if (h) {
-        const min = h[2] ? String(h[2]).padStart(2, "0") : "00";
-        return `${String(h[1]).padStart(2, "0")}:${min}`;
-      }
-      return "09:00";
-    }
-
-    function parseChatCategory(text) {
-      if (/학교|수업|과제|시험/.test(text)) return "school";
-      if (/업무|회의|알바|일/.test(text)) return "work";
-      if (/개인|약속|운동|식사/.test(text)) return "personal";
-      return "other";
-    }
-
-    function tryParseAddEventCommand(text) {
-      if (!/(추가|등록|넣어|만들)/.test(text)) return null;
-
-      const dateStr = parseChatDate(text);
-      const time = parseChatTime(text);
-
-      let title = "";
-      const patterns = [
-        /(?:오늘|내일|모레|\d{1,2}\s*월\s*\d{1,2}\s*일)?\s*(?:\d{1,2}\s*:\s*\d{2}|\d{1,2}\s*시(?:\s*\d{1,2}\s*분)?)?\s*(?:에\s*)?(.+?)\s*(?:일정\s*)?(?:추가|등록|넣어|만들)/,
-        /(?:추가|등록|넣어)\s*[:\-]?\s*(.+)/,
-        /(.+?)\s*(?:일정\s*)?(?:추가|등록|넣어줘?)/
-      ];
-
-      for (const re of patterns) {
-        const m = text.match(re);
-        if (m?.[1]) {
-          title = m[1]
-            .replace(/^(오늘|내일|모레|\d{1,2}\s*월\s*\d{1,2}\s*일)\s*/g, "")
-            .replace(/(\d{1,2}\s*:\s*\d{2}|\d{1,2}\s*시(?:\s*\d{1,2}\s*분)?)\s*(?:에\s*)?/g, "")
-            .replace(/^(에|을|를)\s*/, "")
-            .trim();
-          if (title) break;
-        }
-      }
-
-      if (!title || title.length < 2) return null;
-      return {
-        title,
-        date: dateStr,
-        time,
-        memo: "",
-        category: parseChatCategory(text),
-        repeat: /매주|반복/.test(text) ? "weekly" : "none",
-        important: /중요/.test(text),
-        dday: /d-?day|디데이/i.test(text)
-      };
-    }
-
-    function getChatScheduleContext() {
-      const todayStr = formatDate(new Date());
-      const todayItems = getEventsForDate(todayStr, false).map(e => ({ event: e, dateStr: todayStr }));
-      const tomorrowStr = addDays(new Date(), 1);
-      const tomorrowItems = getEventsForDate(tomorrowStr, false).map(e => ({ event: e, dateStr: tomorrowStr }));
-      const ddayEvents = events
-        .filter(e => e.dday && getDday(e.date) >= 0)
-        .sort((a, b) => getDday(a.date) - getDday(b.date))
-        .slice(0, 5);
-      const week = getWeekRange();
-      const weekCount = getAllOccurrences(false).filter(o => o.dateStr >= week.start && o.dateStr <= week.end).length;
-
-      return { todayStr, todayItems, tomorrowStr, tomorrowItems, ddayEvents, weekCount };
-    }
-
-    async function handleChatbotMessage(text) {
-      const msg = text.trim();
-      if (!msg) return "메시지를 입력해 주세요.";
-
-      if (/^(안녕|하이|hello|hi)\b/i.test(msg)) {
-        return "안녕하세요! PlanDay AI입니다.\n오늘·내일 일정 조회, D-day 확인, 일정 추가를 도와드려요.\n예: \"내일 3시에 스터디 추가\"";
-      }
-
-      if (/도움|help|명령|사용법/.test(msg)) {
-        return [
-          "📌 사용 가능한 명령",
-          "• 오늘 일정 / 내일 일정",
-          "• D-day / 디데이",
-          "• 이번 주 일정",
-          "• ○○ 검색 (예: 과제 검색)",
-          "• 내일 3시에 스터디 추가",
-          "• 오늘 14:00 회의 등록"
-        ].join("\n");
-      }
-
-      const addData = tryParseAddEventCommand(msg);
-      if (addData) {
-        await pushNewEvent(addData);
-        renderAll();
-        return `✅ 일정을 추가했어요!\n${formatDisplayDate(addData.date)} ${addData.time}\n「${addData.title}」`;
-      }
-
-      const ctx = getChatScheduleContext();
-
-      if (/오늘.*일정|일정.*오늘/.test(msg) || msg === "오늘") {
-        const lines = formatEventList(ctx.todayItems, "오늘 등록된 일정이 없어요.");
-        return `📅 오늘 일정 (${ctx.todayItems.length}개)\n${lines}`;
-      }
-
-      if (/내일.*일정|일정.*내일/.test(msg) || msg === "내일") {
-        const lines = formatEventList(ctx.tomorrowItems, "내일 일정이 없어요.");
-        return `📅 내일 일정 (${ctx.tomorrowItems.length}개)\n${lines}`;
-      }
-
-      if (/d-?day|디데이|디 데이/i.test(msg)) {
-        if (!ctx.ddayEvents.length) return "등록된 D-day 일정이 없어요.";
-        const lines = ctx.ddayEvents
-          .map(e => `• ${getDdayLabel(e.date)} ${e.title} (${formatDisplayDate(e.date)})`)
-          .join("\n");
-        return `⏰ D-day 일정\n${lines}`;
-      }
-
-      if (/이번\s*주|주간/.test(msg)) {
-        return `📊 이번 주 일정 ${ctx.weekCount}개가 있어요.\n달력 탭에서 자세히 볼 수 있어요.`;
-      }
-
-      const searchMatch = msg.match(/(.+?)\s*(?:검색|찾|알려)/);
-      const keyword = (searchMatch?.[1] || msg)
-        .replace(/일정|검색|찾아|알려줘/g, "")
-        .trim();
-      if (keyword.length >= 2 && /검색|찾|알려/.test(msg)) {
-        const q = keyword.toLowerCase();
-        const matches = getAllOccurrences(false)
-          .filter(({ event }) =>
-            event.title.toLowerCase().includes(q) ||
-            event.memo.toLowerCase().includes(q)
-          )
-          .slice(0, 8);
-        if (!matches.length) return `「${keyword}」 관련 일정을 찾지 못했어요.`;
-        const lines = matches
-          .map(({ event, dateStr }) => `• ${getRelativeLabel(dateStr)} ${formatEventLine(event, dateStr)}`)
-          .join("\n");
-        return `🔍 검색 결과\n${lines}`;
-      }
-
-      if (/몇\s*개|개수|통계/.test(msg)) {
-        return `📊 오늘 ${ctx.todayItems.length}개, 내일 ${ctx.tomorrowItems.length}개, 이번 주 ${ctx.weekCount}개 일정이 있어요.`;
-      }
-
-      return "잘 이해하지 못했어요.\n「오늘 일정」, 「D-day」, 「내일 3시에 스터디 추가」처럼 말씀해 주세요.\n도움말을 입력하면 사용법을 볼 수 있어요.";
-    }
-
-    async function sendChatMessage(text) {
-      const msg = text.trim();
-      if (!msg) return;
-
-      try {
-        await ensureChatSession();
-      } catch (err) {
-        console.error(err);
-        appendChatMessage("대화 기록을 저장하려면 로그인이 필요합니다.", "bot");
-        return;
-      }
-
-      const userEntry = { role: "user", content: msg, created_at: new Date().toISOString() };
-      currentMessages.push(userEntry);
-      appendChatMessage(msg, "user");
-      $("chat-input").value = "";
-
-      const typing = appendChatMessage("답변 생성 중...", "bot typing");
-      await new Promise(r => setTimeout(r, 280));
-      typing.remove();
-
-      try {
-        const reply = await handleChatbotMessage(msg);
-        const assistantEntry = { role: "assistant", content: reply, created_at: new Date().toISOString() };
-        currentMessages.push(assistantEntry);
-        appendChatMessage(reply, "bot");
-        appendSystemLog(`user: "${msg.slice(0, 40)}" → rule-based 응답 (${reply.length}자)`);
-        await persistChatSession();
-        updateChatSessionLabel();
-        if (chatActiveTab === "history") renderChatSessionList();
-        if (chatActiveTab === "system") renderChatSystemBox();
-      } catch (err) {
-        console.error(err);
-        appendChatMessage("오류가 발생했어요. 잠시 후 다시 시도해 주세요.", "bot");
-      }
-    }
-
-    function initChatbot() {
-      renderChatMessages(true);
-      renderChatSuggestions();
-      renderChatSystemBox();
-      switchChatTab("messages");
-    }
-
-    function setupChatbotEvents() {
-      if (chatInitialized) return;
-      chatInitialized = true;
-
-      $("chat-fab").addEventListener("click", toggleChatPanel);
-      $("chat-close").addEventListener("click", closeChatPanel);
-      $("chat-new-btn").addEventListener("click", startNewChatSession);
-      document.querySelectorAll(".chat-tab").forEach(btn => {
-        btn.addEventListener("click", () => switchChatTab(btn.dataset.chatTab));
-      });
-      $("chat-form").addEventListener("submit", e => {
-        e.preventDefault();
-        sendChatMessage($("chat-input").value);
-      });
-    }
-
-    document.querySelectorAll(".tab-btn").forEach(b => b.addEventListener("click", () => switchTab(b.dataset.tab)));
-    document.querySelectorAll("[data-goto]").forEach(b => b.addEventListener("click", () => switchTab(b.dataset.goto)));
-
-    $("search-input").addEventListener("input", e => renderSearch(e.target.value));
-
-    $("cal-prev").addEventListener("click", () => { viewMonth--; if (viewMonth < 0) { viewMonth = 11; viewYear--; } renderCalendar(); });
-    $("cal-next").addEventListener("click", () => { viewMonth++; if (viewMonth > 11) { viewMonth = 0; viewYear++; } renderCalendar(); });
-    $("cal-today").addEventListener("click", () => {
-      const n = new Date();
-      viewYear = n.getFullYear(); viewMonth = n.getMonth();
-      selectedDate = formatDate(n);
-      renderCalendar();
-    });
-
-    $("add-form").addEventListener("submit", e => {
-      e.preventDefault();
-      pushNewEvent({
-        title: $("title").value.trim(),
-        date: $("date").value,
-        time: $("time").value,
-        memo: $("memo").value.trim(),
-        category: $("category").value,
-        repeat: $("repeat").value,
-        important: $("important").checked,
-        dday: $("dday").checked
-      }).then(() => {
-        e.target.reset();
-        $("date").value = formatDate(new Date());
-        $("time").value = "09:00";
-        renderAll();
-        showToast("일정이 저장되었습니다");
-        switchTab("dashboard");
-      });
-    });
-
-    $("modal-add-form").addEventListener("submit", e => {
-      e.preventDefault();
-      pushNewEvent({
-        title: $("modal-add-title").value.trim(),
-        date: $("modal-add-date").value,
-        time: $("modal-add-time").value,
-        memo: $("modal-add-memo").value.trim(),
-        category: $("modal-add-category").value,
-        repeat: $("modal-add-repeat").value,
-        important: $("modal-add-important").checked,
-        dday: $("modal-add-dday").checked
-      }).then(() => {
-        hideModalAddForm();
-        renderAll();
-        showToast("일정이 저장되었습니다");
-        if (eventModalContext?.type === "day") {
-          $("cal-day-modal-add-btn").hidden = false;
-        }
-      });
-    });
-
-    $("cal-day-modal-add-btn").addEventListener("click", () => {
-      if (eventModalContext?.type === "day") {
-        showModalAddForm(eventModalContext.dateStr);
-      }
-    });
-
-    $("modal-add-cancel").addEventListener("click", () => {
-      hideModalAddForm();
-      if (eventModalContext?.type === "day") {
-        $("cal-day-modal-add-btn").hidden = false;
-      }
-    });
-
-    $("edit-form").addEventListener("submit", e => {
-      e.preventDefault();
-      const id = $("edit-id").value;
-      const idx = events.findIndex(ev => ev.id === id);
-      if (idx < 0) return;
-      events[idx] = normalizeEvent({
-        ...events[idx],
-        title: $("edit-title").value.trim(),
-        date: $("edit-date").value,
-        time: $("edit-time").value,
-        memo: $("edit-memo").value.trim(),
-        category: $("edit-category").value,
-        repeat: $("edit-repeat").value,
-        important: $("edit-important").checked,
-        dday: $("edit-dday").checked
-      });
-      saveEvents().then(() => {
-        closeEdit();
-        renderAll();
-        showToast("일정이 수정되었습니다");
-      });
-    });
-
-    $("login-form").addEventListener("submit", async e => {
-      e.preventDefault();
-      $("login-error").textContent = "";
-      const email = $("login-email").value.trim();
-      const password = $("login-password").value;
-      try {
-        const { error } = await supabase.auth.signInWithPassword({ email, password });
-        if (error) throw error;
-      } catch (err) {
-        $("login-error").style.color = "var(--danger)";
-        $("login-error").textContent = err.message || "로그인에 실패했습니다";
-      }
-    });
-
-    $("signup-form").addEventListener("submit", async e => {
-      e.preventDefault();
-      $("signup-error").textContent = "";
-      const email = $("signup-email").value.trim();
-      const password = $("signup-password").value;
-      const password2 = $("signup-password2").value;
-      if (password !== password2) {
-        $("signup-error").style.color = "var(--danger)";
-        $("signup-error").textContent = "비밀번호가 일치하지 않습니다";
-        return;
-      }
-      try {
-        const { error } = await supabase.auth.signUp({ email, password });
-        if (error) throw error;
-        showAuthLoginPage();
-        $("login-email").value = email;
-        $("login-password").value = "";
-        $("login-error").style.color = "var(--success)";
-        $("login-error").textContent = "가입 완료! 로그인해 주세요.";
-      } catch (err) {
-        $("signup-error").style.color = "var(--danger)";
-        $("signup-error").textContent = err.message || "회원가입에 실패했습니다";
-      }
-    });
-
-    $("go-signup").addEventListener("click", showAuthSignupPage);
-    $("go-login").addEventListener("click", showAuthLoginPage);
-
-    $("logout-btn").addEventListener("click", onLogout);
-
-    $("edit-cancel").addEventListener("click", closeEdit);
-    $("edit-modal").addEventListener("click", e => { if (e.target === $("edit-modal")) closeEdit(); });
-    $("cal-day-modal-close").addEventListener("click", closeCalDayModal);
-    $("cal-day-modal").addEventListener("click", e => { if (e.target === $("cal-day-modal")) closeCalDayModal(); });
     $("theme-btn").addEventListener("click", toggleTheme);
-    $("list-enter-delete").addEventListener("click", enterListDeleteMode);
-    $("list-cancel-delete").addEventListener("click", () => exitListDeleteMode());
-    $("list-select-all").addEventListener("click", toggleListSelectAll);
-    $("list-delete-selected").addEventListener("click", deleteSelectedEvents);
 
-    initApp();
+    bootstrapPlanDay();
   </script>
 </body>
 </html>

@@ -8,14 +8,20 @@ create table if not exists public.conversation_records (
   title text not null default '새 대화',
   messages jsonb not null default '[]'::jsonb,
   system_message text not null default '',
+  prompt_tone text not null default 'friendly',
+  prompt_tone_label text not null default '친근한 선생님',
+  prompt_is_custom boolean not null default false,
+  prompt_applied text not null default '',
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
 
 -- messages 예시:
 -- [
---   { "role": "user", "content": "오늘 일정 알려줘", "created_at": "2026-08-23T09:00:00+09:00" },
---   { "role": "assistant", "content": "오늘 일정은 ...", "created_at": "2026-08-23T09:00:01+09:00" }
+--   { "role": "user", "content": "오늘 일정 알려줘", "created_at": "..." },
+--   { "role": "assistant", "content": "...", "created_at": "...",
+--     "usage": { "model": "gemini-3.6-flash", "input_tokens": 120, "output_tokens": 45,
+--                "total_tokens": 165, "estimated_cost_usd": 0.0005 } }
 -- ]
 
 create index if not exists conversation_records_user_id_idx

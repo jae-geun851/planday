@@ -1,0 +1,5 @@
+.env
+.env.*
+*.local
+admin/supabase-config.js
+js/supabase-config.js
