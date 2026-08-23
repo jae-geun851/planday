@@ -268,8 +268,21 @@
 
     .panel.active { display: flex; flex-direction: column; }
 
-    #panel-calendar.active,
+    #panel-calendar.active {
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
     #panel-add.active { overflow-y: auto; display: block; }
+
+    .cal-wrap {
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+      min-height: 0;
+      height: 100%;
+    }
 
     .dash-fit {
       display: grid;
@@ -618,6 +631,15 @@
       border-radius: 999px;
       font-size: 0.75rem;
       font-weight: 600;
+      border: none;
+      cursor: pointer;
+      font-family: inherit;
+      color: var(--text);
+    }
+
+    .cat-pill:hover {
+      background: var(--today);
+      color: var(--primary);
     }
 
     .list-empty {
@@ -765,7 +787,8 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      margin-bottom: 14px;
+      margin-bottom: 10px;
+      flex-shrink: 0;
     }
 
     .cal-header h2 {
@@ -793,49 +816,135 @@
       font-size: 0.72rem;
       font-weight: 600;
       color: var(--text-muted);
-      margin-bottom: 6px;
+      margin-bottom: 4px;
+      flex-shrink: 0;
     }
 
     .cal-grid {
       display: grid;
       grid-template-columns: repeat(7, 1fr);
+      grid-template-rows: repeat(6, 1fr);
       gap: 3px;
+      flex: 1;
+      min-height: 0;
     }
 
     .cal-day {
-      aspect-ratio: 1;
-      border: none;
-      background: transparent;
-      border-radius: 8px;
+      border: 1px solid transparent;
+      background: var(--bg);
+      border-radius: 6px;
       font-size: 0.85rem;
       cursor: pointer;
       position: relative;
       color: var(--text);
       font-family: inherit;
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+      padding: 3px 4px;
+      min-height: 0;
+      overflow: hidden;
+      text-align: left;
     }
 
-    .cal-day.today { background: var(--today); font-weight: 700; color: var(--primary); }
-    .cal-day.selected { background: var(--primary); color: #fff; font-weight: 700; }
-    .cal-day.has-event::after {
-      content: "";
-      position: absolute;
-      bottom: 3px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 4px;
-      height: 4px;
-      border-radius: 50%;
+    .cal-day-num {
+      font-size: 0.72rem;
+      font-weight: 700;
+      line-height: 1.2;
+      flex-shrink: 0;
+    }
+
+    .cal-cell-events {
+      flex: 1;
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      overflow: hidden;
+      margin-top: 2px;
+    }
+
+    .cal-event-pill {
+      display: block;
+      font-size: 0.58rem;
+      font-weight: 600;
+      padding: 1px 4px;
+      border-radius: 3px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      background: var(--surface);
+      border-left: 2px solid var(--cat-other);
+      line-height: 1.3;
+    }
+
+    .cal-event-pill.cat-school { border-left-color: var(--cat-school); }
+    .cal-event-pill.cat-personal { border-left-color: var(--cat-personal); }
+    .cal-event-pill.cat-work { border-left-color: var(--cat-work); }
+    .cal-event-pill.cat-other { border-left-color: var(--cat-other); }
+
+    .cal-event-more {
+      font-size: 0.58rem;
+      color: var(--text-muted);
+      font-weight: 700;
+      padding: 0 2px;
+    }
+
+    .cal-day.today {
+      background: var(--today);
+      border-color: var(--primary);
+    }
+
+    .cal-day.today .cal-day-num { color: var(--primary); }
+
+    .cal-day.selected {
       background: var(--primary);
+      border-color: var(--primary);
+      color: #fff;
     }
 
-    .cal-day.selected.has-event::after { background: #fff; }
-    .cal-day.empty { cursor: default; }
+    .cal-day.selected .cal-day-num { color: #fff; }
 
-    .day-detail {
-      margin-top: 16px;
-      padding-top: 14px;
-      border-top: 1px solid var(--border);
+    .cal-day.selected .cal-event-pill {
+      background: rgba(255,255,255,0.92);
+      color: var(--text);
     }
+
+    .cal-day.selected .cal-event-more { color: rgba(255,255,255,0.85); }
+
+    .cal-day.other-month {
+      background: transparent;
+      opacity: 0.6;
+    }
+
+    .cal-day.other-month .cal-day-num {
+      font-size: 0.65rem;
+      color: var(--text-muted);
+    }
+
+    .cal-day.other-month.today {
+      opacity: 1;
+    }
+
+    .cal-day.other-month.selected {
+      opacity: 1;
+    }
+
+    .cal-day.empty {
+      cursor: default;
+      background: transparent;
+      border-color: transparent;
+      pointer-events: none;
+    }
+
+    .cal-day-modal-events {
+      list-style: none;
+      max-height: 50vh;
+      overflow-y: auto;
+      margin-bottom: 14px;
+    }
+
+    .cal-day-modal-events .event-item { margin-bottom: 6px; }
 
     .form-group { margin-bottom: 14px; }
 
@@ -1065,22 +1174,20 @@
       </section>
 
       <section id="panel-calendar" class="panel">
-        <div class="cal-header">
-          <h2 id="cal-title"></h2>
-          <div class="cal-nav">
-            <button type="button" id="cal-prev">‹</button>
-            <button type="button" id="cal-today">오늘</button>
-            <button type="button" id="cal-next">›</button>
+        <div class="cal-wrap">
+          <div class="cal-header">
+            <h2 id="cal-title"></h2>
+            <div class="cal-nav">
+              <button type="button" id="cal-prev">‹</button>
+              <button type="button" id="cal-today">오늘</button>
+              <button type="button" id="cal-next">›</button>
+            </div>
           </div>
-        </div>
-        <div class="cal-weekdays">
-          <span>일</span><span>월</span><span>화</span><span>수</span>
-          <span>목</span><span>금</span><span>토</span>
-        </div>
-        <div class="cal-grid" id="cal-grid"></div>
-        <div class="day-detail">
-          <h3 id="selected-date-label"></h3>
-          <ul class="event-list" id="day-events"></ul>
+          <div class="cal-weekdays">
+            <span>일</span><span>월</span><span>화</span><span>수</span>
+            <span>목</span><span>금</span><span>토</span>
+          </div>
+          <div class="cal-grid" id="cal-grid"></div>
         </div>
       </section>
 
@@ -1141,12 +1248,20 @@
           </div>
           <div class="checkbox-row">
             <input type="checkbox" id="dday">
-            <label for="dday">D-day로 표시 (마감/시험)</label>
+            <label for="dday">D-day로 표시</label>
           </div>
           <button type="submit" class="submit-btn">일정 저장</button>
         </form>
       </section>
     </main>
+  </div>
+
+  <div class="modal-overlay" id="cal-day-modal">
+    <div class="modal">
+      <h2 id="cal-day-modal-title"></h2>
+      <ul class="cal-day-modal-events" id="cal-day-modal-events"></ul>
+      <button type="button" class="cancel-btn" id="cal-day-modal-close" style="width:100%">닫기</button>
+    </div>
   </div>
 
   <div class="modal-overlay" id="edit-modal">
@@ -1210,7 +1325,7 @@
 
   <script>
     const STORAGE_KEY = "planDayEvents";
-    const SEED_KEY = "planDaySeeded_v6";
+    const SEED_KEY = "planDaySeeded_v7";
     const ORDER_KEY_PREFIX = "planDayOrder_";
     const THEME_KEY = "planDayTheme";
     const HOME_PAGE_SIZE = 6;
@@ -1241,6 +1356,7 @@
     let viewYear = new Date().getFullYear();
     let viewMonth = new Date().getMonth();
     let selectedDate = formatDate(new Date());
+    let eventModalContext = null;
     const randomGreeting = GREETINGS[Math.floor(Math.random() * GREETINGS.length)];
 
     const $ = id => document.getElementById(id);
@@ -1565,7 +1681,7 @@
     }
 
     function getAllListEventIds() {
-      return [...new Set(getAllOccurrences(true).map(o => o.event.id))];
+      return [...new Set(getAllOccurrences(false).map(o => o.event.id))];
     }
 
     function resetListActionButtons() {
@@ -1773,7 +1889,7 @@
       if (!query.trim()) return;
 
       const q = query.toLowerCase();
-      const matches = getAllOccurrences(true).filter(({ event }) =>
+      const matches = getAllOccurrences(false).filter(({ event }) =>
         event.title.toLowerCase().includes(q) ||
         event.memo.toLowerCase().includes(q) ||
         CATEGORY_LABELS[event.category].includes(q)
@@ -1828,7 +1944,7 @@
         const date = new Date(start + "T00:00:00");
         date.setDate(date.getDate() + i);
         const dateStr = formatDate(date);
-        const count = getEventsForDate(dateStr, true).length;
+        const count = getEventsForDate(dateStr, false).length;
         const btn = document.createElement("button");
         btn.type = "button";
         btn.className = "mini-day" + (dateStr === todayStr ? " today" : "");
@@ -1836,13 +1952,7 @@
           <div class="mini-day-name">${wd[i]}</div>
           <div class="mini-day-num">${date.getDate()}</div>
           <div class="mini-dots">${Array(Math.min(count,3)).fill('<span class="mini-dot"></span>').join("")}</div>`;
-        btn.addEventListener("click", () => {
-          selectedDate = dateStr;
-          viewYear = date.getFullYear();
-          viewMonth = date.getMonth();
-          switchTab("calendar");
-          renderCalendar();
-        });
+        btn.addEventListener("click", () => openCalDayModal(dateStr));
         grid.appendChild(btn);
       }
     }
@@ -1854,11 +1964,13 @@
       ["school","personal","work","other"].forEach(cat => {
         let count = 0;
         for (let d = new Date(start + "T00:00:00"); formatDate(d) <= end; d.setDate(d.getDate() + 1)) {
-          count += getEventsForDate(formatDate(d), true).filter(e => e.category === cat).length;
+          count += getEventsForDate(formatDate(d), false).filter(e => e.category === cat).length;
         }
-        const pill = document.createElement("div");
+        const pill = document.createElement("button");
+        pill.type = "button";
         pill.className = "cat-pill";
         pill.textContent = `${CATEGORY_LABELS[cat]} ${count}`;
+        pill.addEventListener("click", () => openCategoryWeekModal(cat));
         box.appendChild(pill);
       });
     }
@@ -1875,17 +1987,17 @@
     function renderDashboard() {
       const todayStr = formatDate(new Date());
       const { start, end } = getWeekRange();
-      const todayOcc = getEventsForDate(todayStr, true);
+      const todayOcc = getEventsForDate(todayStr, false);
       let weekCount = 0;
       for (let d = new Date(start + "T00:00:00"); formatDate(d) <= end; d.setDate(d.getDate() + 1)) {
-        weekCount += getEventsForDate(formatDate(d), true).length;
+        weekCount += getEventsForDate(formatDate(d), false).length;
       }
 
       $("dash-greeting-text").textContent = randomGreeting;
       $("dash-date-text").textContent = formatDisplayDate(todayStr);
       $("stat-today").textContent = todayOcc.length;
       $("stat-week").textContent = weekCount;
-      $("stat-important").textContent = getAllOccurrences(true).filter(o => o.event.important).length;
+      $("stat-important").textContent = getAllOccurrences(false).filter(o => o.event.important).length;
 
       renderNextEvent();
       renderMiniWeek();
@@ -1903,7 +2015,7 @@
         HOME_PAGE_SIZE,
         e => renderHomeEvent(e, todayStr, { showCheck: true, draggable: true }),
         newPage => { todayPage = newPage; renderDashboard(); },
-        "오늘 남은 일정 없음"
+        "오늘 일정 없음"
       );
       if (sortedToday.length > 0) setupDragSort(todayList, todayStr);
 
@@ -1923,6 +2035,99 @@
       );
     }
 
+    function buildCalCellEventsHtml(events, maxShow = 2) {
+      if (!events.length) return "";
+      const shown = events.slice(0, maxShow);
+      let html = shown.map(e =>
+        `<span class="cal-event-pill cat-${e.category}">${escapeHtml(e.title)}</span>`
+      ).join("");
+      if (events.length > maxShow) {
+        html += `<span class="cal-event-more">+${events.length - maxShow}</span>`;
+      }
+      return html;
+    }
+
+    function getCategoryWeekOccurrences(category) {
+      const { start, end } = getWeekRange();
+      const occurrences = [];
+      for (let d = new Date(start + "T00:00:00"); formatDate(d) <= end; d.setDate(d.getDate() + 1)) {
+        const dateStr = formatDate(d);
+        getEventsForDate(dateStr, false)
+          .filter(e => e.category === category)
+          .forEach(event => occurrences.push({ event, dateStr }));
+      }
+      return occurrences;
+    }
+
+    function renderEventListModal(title, occurrences) {
+      $("cal-day-modal-title").textContent = title;
+      const dayEl = $("cal-day-modal-events");
+      dayEl.innerHTML = "";
+      if (!occurrences.length) {
+        dayEl.innerHTML = `<li class="list-empty">일정 없음</li>`;
+      } else {
+        const todayStr = formatDate(new Date());
+        occurrences.forEach(({ event, dateStr }) => {
+          dayEl.appendChild(renderEventEl(event, dateStr, {
+            asList: true,
+            showDate: true,
+            showCheck: dateStr === todayStr
+          }));
+        });
+      }
+    }
+
+    function refreshEventModal() {
+      if (!eventModalContext) return;
+      if (eventModalContext.type === "day") {
+        const dateStr = eventModalContext.dateStr;
+        const list = getEventsForDate(dateStr, false);
+        renderEventListModal(formatDisplayDate(dateStr), list.map(event => ({ event, dateStr })));
+      } else if (eventModalContext.type === "category") {
+        renderEventListModal(
+          `이번 주 · ${CATEGORY_LABELS[eventModalContext.category]}`,
+          getCategoryWeekOccurrences(eventModalContext.category)
+        );
+      }
+    }
+
+    function openCalDayModal(dateStr) {
+      selectedDate = dateStr;
+      eventModalContext = { type: "day", dateStr };
+      refreshEventModal();
+      $("cal-day-modal").classList.add("open");
+      renderCalendar();
+    }
+
+    function openCategoryWeekModal(category) {
+      eventModalContext = { type: "category", category };
+      refreshEventModal();
+      $("cal-day-modal").classList.add("open");
+    }
+
+    function closeCalDayModal() {
+      $("cal-day-modal").classList.remove("open");
+      eventModalContext = null;
+    }
+
+    function appendCalDayCell(grid, cellYear, cellMonth, cellDay, todayStr) {
+      const dateStr = `${cellYear}-${String(cellMonth + 1).padStart(2, "0")}-${String(cellDay).padStart(2, "0")}`;
+      const isCurrentMonth = cellYear === viewYear && cellMonth === viewMonth;
+      const dayEvents = getEventsForDate(dateStr, false);
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "cal-day";
+      if (!isCurrentMonth) btn.classList.add("other-month");
+      if (dateStr === todayStr) btn.classList.add("today");
+      if (dateStr === selectedDate) btn.classList.add("selected");
+      const dayLabel = isCurrentMonth ? String(cellDay) : `${cellMonth + 1}/${cellDay}`;
+      btn.innerHTML = `
+        <span class="cal-day-num">${dayLabel}</span>
+        <div class="cal-cell-events">${buildCalCellEventsHtml(dayEvents)}</div>`;
+      btn.addEventListener("click", () => openCalDayModal(dateStr));
+      grid.appendChild(btn);
+    }
+
     function renderCalendar() {
       $("cal-title").textContent = `${viewYear}년 ${viewMonth + 1}월`;
       const grid = $("cal-grid");
@@ -1930,42 +2135,37 @@
       const firstDay = new Date(viewYear, viewMonth, 1).getDay();
       const daysInMonth = new Date(viewYear, viewMonth + 1, 0).getDate();
       const todayStr = formatDate(new Date());
+      const totalCells = 42;
 
-      for (let i = 0; i < firstDay; i++) {
-        const e = document.createElement("div");
-        e.className = "cal-day empty";
-        grid.appendChild(e);
+      for (let i = 0; i < totalCells; i++) {
+        const dayNum = i - firstDay + 1;
+        let cellYear = viewYear;
+        let cellMonth = viewMonth;
+        let cellDay = dayNum;
+
+        if (dayNum < 1) {
+          cellMonth = viewMonth === 0 ? 11 : viewMonth - 1;
+          cellYear = viewMonth === 0 ? viewYear - 1 : viewYear;
+          const daysInPrev = new Date(cellYear, cellMonth + 1, 0).getDate();
+          cellDay = daysInPrev + dayNum;
+        } else if (dayNum > daysInMonth) {
+          cellMonth = viewMonth === 11 ? 0 : viewMonth + 1;
+          cellYear = viewMonth === 11 ? viewYear + 1 : viewYear;
+          cellDay = dayNum - daysInMonth;
+        }
+
+        appendCalDayCell(grid, cellYear, cellMonth, cellDay, todayStr);
       }
 
-      for (let day = 1; day <= daysInMonth; day++) {
-        const dateStr = `${viewYear}-${String(viewMonth+1).padStart(2,"0")}-${String(day).padStart(2,"0")}`;
-        const btn = document.createElement("button");
-        btn.type = "button";
-        btn.className = "cal-day";
-        btn.textContent = day;
-        if (dateStr === todayStr) btn.classList.add("today");
-        if (dateStr === selectedDate) btn.classList.add("selected");
-        if (getEventsForDate(dateStr, true).length) btn.classList.add("has-event");
-        btn.addEventListener("click", () => { selectedDate = dateStr; renderCalendar(); });
-        grid.appendChild(btn);
-      }
-
-      $("selected-date-label").textContent = formatDisplayDate(selectedDate);
-      const list = getEventsForDate(selectedDate, true);
-      const dayEl = $("day-events");
-      dayEl.innerHTML = "";
-      if (!list.length) {
-        dayEl.innerHTML = `<li class="list-empty">일정 없음</li>`;
-      } else {
-        const isToday = selectedDate === todayStr;
-        list.forEach(e => dayEl.appendChild(renderEventEl(e, selectedDate, { asList: true, showCheck: isToday })));
+      if ($("cal-day-modal").classList.contains("open")) {
+        refreshEventModal();
       }
     }
 
     function renderList() {
       const list = $("all-events");
       const paginationEl = $("list-pagination");
-      const occ = getAllOccurrences(true);
+      const occ = getAllOccurrences(false);
       const todayStr = formatDate(new Date());
 
       listPage = renderPagedSection(
@@ -1996,18 +2196,26 @@
       renderDashboard();
       renderCalendar();
       renderList();
+      if ($("cal-day-modal").classList.contains("open")) refreshEventModal();
     }
 
     function createSampleEvents() {
       const t = new Date();
       return [
         { id: crypto.randomUUID(), title: "test", date: addDays(t,0), time: "08:00", memo: "아침 루틴", category: "personal", important: false, dday: false, repeat: "none", doneDates: [] },
+        { id: crypto.randomUUID(), title: "커피 타임", date: addDays(t,0), time: "09:30", memo: "카페에서 공부", category: "personal", important: false, dday: false, repeat: "none", doneDates: [] },
         { id: crypto.randomUUID(), title: "웹개발 수업", date: addDays(t,0), time: "10:00", memo: "프로젝트 발표", category: "school", important: true, dday: false, repeat: "none", doneDates: [] },
+        { id: crypto.randomUUID(), title: "팀 스탠드업", date: addDays(t,0), time: "11:00", memo: "진행 상황 공유", category: "work", important: false, dday: false, repeat: "none", doneDates: [] },
         { id: crypto.randomUUID(), title: "점심 약속", date: addDays(t,0), time: "12:30", memo: "친구 만나기", category: "personal", important: false, dday: false, repeat: "none", doneDates: [] },
         { id: crypto.randomUUID(), title: "스터디", date: addDays(t,0), time: "14:00", memo: "JS 복습", category: "school", important: false, dday: false, repeat: "none", doneDates: [] },
         { id: crypto.randomUUID(), title: "운동", date: addDays(t,0), time: "16:00", memo: "헬스 1시간", category: "personal", important: false, dday: false, repeat: "none", doneDates: [] },
         { id: crypto.randomUUID(), title: "알바 준비", date: addDays(t,0), time: "18:00", memo: "", category: "work", important: false, dday: false, repeat: "none", doneDates: [] },
+        { id: crypto.randomUUID(), title: "저녁 식사", date: addDays(t,0), time: "19:30", memo: "가족 외식", category: "personal", important: false, dday: false, repeat: "none", doneDates: [] },
         { id: crypto.randomUUID(), title: "과제 확인", date: addDays(t,0), time: "20:00", memo: "GitHub push", category: "school", important: true, dday: true, repeat: "none", doneDates: [] },
+        { id: crypto.randomUUID(), title: "코딩 연습", date: addDays(t,0), time: "21:00", memo: "PlanDay 개선", category: "school", important: false, dday: false, repeat: "none", doneDates: [] },
+        { id: crypto.randomUUID(), title: "어제 회의", date: addDays(t,-1), time: "14:00", memo: "팀 회고", category: "work", important: false, dday: false, repeat: "none", doneDates: [] },
+        { id: crypto.randomUUID(), title: "어제 운동", date: addDays(t,-1), time: "19:00", memo: "조깅", category: "personal", important: false, dday: false, repeat: "none", doneDates: [] },
+        { id: crypto.randomUUID(), title: "그저께 공부", date: addDays(t,-2), time: "10:00", memo: "Git 복습", category: "school", important: false, dday: false, repeat: "none", doneDates: [] },
         { id: crypto.randomUUID(), title: "팀 미팅", date: addDays(t,1), time: "10:30", memo: "주간 공유", category: "work", important: true, dday: false, repeat: "none", doneDates: [] },
         { id: crypto.randomUUID(), title: "과제 제출", date: addDays(t,2), time: "23:59", memo: "GitHub URL", category: "school", important: true, dday: true, repeat: "none", doneDates: [] },
         { id: crypto.randomUUID(), title: "중간고사", date: addDays(t,7), time: "09:00", memo: "웹개발", category: "school", important: true, dday: true, repeat: "none", doneDates: [] },
@@ -2085,6 +2293,8 @@
 
     $("edit-cancel").addEventListener("click", closeEdit);
     $("edit-modal").addEventListener("click", e => { if (e.target === $("edit-modal")) closeEdit(); });
+    $("cal-day-modal-close").addEventListener("click", closeCalDayModal);
+    $("cal-day-modal").addEventListener("click", e => { if (e.target === $("cal-day-modal")) closeCalDayModal(); });
     $("theme-btn").addEventListener("click", toggleTheme);
     $("list-enter-delete").addEventListener("click", enterListDeleteMode);
     $("list-cancel-delete").addEventListener("click", () => exitListDeleteMode());
